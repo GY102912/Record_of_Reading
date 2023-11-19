@@ -214,6 +214,8 @@ class _MyReportPageState extends State<MyReportPage>{
 }
 
 
+
+//독서 진행률 보여주기 위함 ->  카드 누르면 책별 독후감 기록 보여주도록 고려
 class MyReadingPage extends StatefulWidget {
   @override
   _MyReadingPageState createState() => _MyReadingPageState();
