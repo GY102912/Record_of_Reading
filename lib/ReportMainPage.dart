@@ -1,11 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:flutterpractice/ReportListProvider.dart';
 import 'package:provider/provider.dart';
-
 import 'reportDetailPage.dart';
 
+
+
+//독서 진행률 보여주기 위함 ->  카드 누르면 책별 독후감 기록 보여주도록 고려
+class MyReadingPage extends StatefulWidget {
+  @override
+  _MyReadingPageState createState() => _MyReadingPageState();
+}
+
+class _MyReadingPageState extends State<MyReadingPage> {
+
+  List bookList = [];
+  @override
+  Widget build(BuildContext context) {
+    // bookList = context.watch<BookUpdator>().bookList;
+
+    bookList = [
+    Book(
+      bookTitle: "The Great Gatsby",
+      userName: "John Doe",
+      currentPage: 29,
+      totalPage: 200,
+      reports: [
+      Report(
+        id: "1",
+        reportTitle: "Chapter 1 Summary",
+        reportContent: "This is the summary of Chapter 1.",
+        createTime: DateTime.now(),
+        updateDate: DateTime.now(),
+      ),
+      Report(
+          id: "2",
+          reportTitle: "Chapter 2 Summary",
+          reportContent: "This is the summary of Chapter 2.",
+        createTime: DateTime.now(),
+      updateDate: DateTime.now(),
+      ),
+      ],
+      ),
+    Book(
+        bookTitle: "The Catcher in the Rye",
+        userName: "Alice Smith",
+        currentPage: 50,
+        totalPage: 230,
+        reports: [
+        Report(
+          id: "3",
+          reportTitle: "Chapter 1 Analysis",
+          reportContent: "Detailed analysis of Chapter 1.",
+          createTime: DateTime.now(),
+          updateDate: DateTime.now(),
+        ),
+        Report(
+        id: "4",
+        reportTitle: "Chapter 2 Analysis",
+        reportContent: "In-depth analysis of Chapter 2.",
+        createTime: DateTime.now(),
+        updateDate: DateTime.now(),
+        ),
+      ],
+    )
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('책목록'),
+      ),
+      body: ListView.builder(
+          itemCount: bookList.length,
+          itemBuilder: (BuildContext context, int index){
+            return ReportCard(
+                book: bookList[index]
+            );
+          } // Add other list items as neede
+      ),
+    );
+  }
+}
+
+class ReportCard extends StatelessWidget{
+  Book book;
+
+  ReportCard({
+    required this.book,
+  });
+
+  @override
+  Widget build(BuildContext context){
+    int currentPage = book.currentPage;
+    int totalPage = book.totalPage;
+    double progressPercentage = currentPage/totalPage;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context, MaterialPageRoute( builder: (context) => MyReportPage(book: book))
+        );
+      },
+      child:Card(
+        child: ListTile(
+          leading: Icon(Icons.book),
+          title: Text(book.bookTitle),
+          subtitle: Text(
+            'Reading Progress: ${progressPercentage.toStringAsFixed(2)}%',
+            style: TextStyle(fontSize: 14),
+          ),
+          trailing: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              value: currentPage / totalPage,
+              strokeWidth: 3,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+//책에 대해 리포트를 쓴 것들 확인
 class MyReportPage extends StatefulWidget{
-  const MyReportPage({super.key});
+  final Book book;
+
+  const MyReportPage({super.key, required this.book});
 
   @override
   _MyReportPageState createState() => _MyReportPageState();
@@ -19,48 +141,29 @@ class _MyReportPageState extends State<MyReportPage>{
   final TextEditingController contentController = TextEditingController();
 
   //리포트 리스트 저장
-  List items = [];
 
   //리포트 리스트 출력
-  Future<void> getReportList() async {
-    List reportList = [];
-
-    //DB에서 리포트 정보 호출
-    var result = await selectReportAll();
-
-    print(result?.numOfRows);
-
-    // 메모 리스트 저장
-    for (final row in result!.rows) {
-      var reportInfo = {
-        'id': row.colByName('id'),
-        'userIndex': row.colByName('userIndex'),
-        'userName': row.colByName('userName'),
-        'reportTitle': row.colByName('reportTitle'),
-        'reportContent': row.colByName('reportContent'),
-        'createDate': row.colByName('createDate'),
-        'updateDate': row.colByName('updateDate')
-      };
-      reportList.add(reportInfo);
-    }
-
-    print('MemoMainPage - getMemoList : $reportList');
-    context.read<ReportUpdator>().updateList(reportList);
-  }
+  // List<Report> getReportList(Book book) {
+  //   List reportList = [];
+  //   reportList = book.reports;
+  //
+  //   return reportList;
+  // }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getReportList();
+    // getReportList();
   }
 
   //리스트뷰 카드 클릭 이벤트
-  void cardClickEvent(BuildContext context, int index) async {
-    dynamic content = items[index];
+  void cardClickEvent(BuildContext context, int index) {
+    dynamic content = widget.book.reports;
+
     print('$content');
     //리스트 업데이트 확인 변수 (false: 업데이트 x, true: 업데이트)
-    var isReportUpdate = await Navigator.push(
+    var isReportUpdate = Navigator.push(
         context,
         MaterialPageRoute(
           //정의한 ContentPage의 폼 호출
@@ -68,18 +171,18 @@ class _MyReportPageState extends State<MyReportPage>{
         )
     );
 
-    //수정이 일어날 경우, 메인 페이즤 리스트 새로 고침
-    if (isReportUpdate != null){
-      setState(() {
-        getReportList();
-        items = Provider.of<ReportUpdator>(context, listen:false).reportList;
-      });
-    }
+    // //수정이 일어날 경우, 메인 페이즤 리스트 새로 고침
+    // if (isReportUpdate != null){
+    //   setState(() {
+    //     getReportList();
+    //     items = Provider.of<ReportUpdator>(context, listen:false).reportList;
+    //   });
+    // }
   }
 
   //액션버튼 클릭 이벤트
-  Future<void> addItemEvent(BuildContext context){
-    return showDialog<void>(
+  void addItemEvent(BuildContext context){
+    showDialog<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -111,15 +214,11 @@ class _MyReportPageState extends State<MyReportPage>{
               ),
               TextButton(
                 child:Text('추가'),
-                onPressed: () async {
+                onPressed: () {
                   String title = titleController.text;
                   String content = contentController.text;
-
-                  await addReport(title, content);
-
                   setState((){
                     print("addReport/setState");
-                    getReportList();
                   });
                   Navigator.of(context).pop();
                 },
@@ -132,6 +231,9 @@ class _MyReportPageState extends State<MyReportPage>{
 
   @override
   Widget build(BuildContext context){
+    Book b = widget.book;
+
+    List items = b.reports;
     return Scaffold(
       body: Column(
         children: <Widget>[
@@ -153,7 +255,7 @@ class _MyReportPageState extends State<MyReportPage>{
             child: Builder(
               builder: (context){
                 //수정이 일어나면 리스트 새로고침
-                items = context.watch<ReportUpdator>().reportList;
+                // items = context.watch<ReportUpdator>().reportList;
 
                 //리포트가 없을 경우
                 if(items.isEmpty){
@@ -169,12 +271,11 @@ class _MyReportPageState extends State<MyReportPage>{
                     itemCount: items.length,
                     itemBuilder: (BuildContext context, int index){
                       // 독후감 정보 저장
-                      dynamic memoInfo = items[index];
-                      String userName = memoInfo['userName'];
-                      String reportTitle = memoInfo['reportTitle'];
-                      String reportContent = memoInfo['reportContent'];
-                      String createDate = memoInfo['createDate'];
-                      String updateDate = memoInfo['updateDate'];
+                      Report reportInfo = items[index];
+                      String reportTitle = reportInfo.reportTitle;
+                      String reportContent = reportInfo.reportContent;
+                      // String createDate = reportInfo['createDate'];
+                      // String updateDate = reportInfo['updateDate'];
 
                       //검색 기능, 검색어가 있을 경우, 제목으로만 검색
                       if (searchText.isNotEmpty && !items[index]['reportTitle'].toLowerCase().contains(searchText.toLowerCase())){
@@ -188,10 +289,10 @@ class _MyReportPageState extends State<MyReportPage>{
                             borderRadius:
                               BorderRadius.all(Radius.elliptical(20,20,))),
                             child: ListTile(
-                              leading: Text(userName),
+                              leading: Icon(Icons.pan_tool),
                               title: Text(reportTitle),
                               subtitle: Text(reportContent),
-                              trailing: Text(updateDate),
+                              // trailing: Text(b.),
                               onTap: () => cardClickEvent(context, index),
                             )
                         );
@@ -208,53 +309,6 @@ class _MyReportPageState extends State<MyReportPage>{
         onPressed: () => addItemEvent(context),
         tooltip: '독후감 쓰기',
         child: Icon(Icons.book),
-      ),
-    );
-  }
-}
-
-
-
-//독서 진행률 보여주기 위함 ->  카드 누르면 책별 독후감 기록 보여주도록 고려
-class MyReadingPage extends StatefulWidget {
-  @override
-  _MyReadingPageState createState() => _MyReadingPageState();
-}
-
-class _MyReadingPageState extends State<MyReadingPage> {
-  int totalPages = 200;
-  int currentPage = 50; // Example: current page is 50
-
-  @override
-  Widget build(BuildContext context) {
-    double progressPercentage = (currentPage / totalPages) * 100;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Reading Progress'),
-      ),
-      body: ListView(
-        children: [
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.book),
-              title: Text('Book Title'),
-              subtitle: Text(
-                'Reading Progress: ${progressPercentage.toStringAsFixed(2)}%',
-                style: TextStyle(fontSize: 14),
-              ),
-              trailing: SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  value: currentPage / totalPages,
-                  strokeWidth: 3,
-                ),
-              ),
-            ),
-          ),
-          // Add other list items as needed
-        ],
       ),
     );
   }

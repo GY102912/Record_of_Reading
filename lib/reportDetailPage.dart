@@ -10,10 +10,11 @@ class ContentPage extends StatefulWidget {
   const ContentPage({Key? key, required this.content}) : super(key: key);
 
   @override
-  State<ContentPage> createState() => _ContentState(content: content)
+  State<ContentPage> createState() => _ContentState(content: content);
 }
 
 class _ContentState extends State<ContentPage>{
+
   final dynamic content;
   _ContentState({required this.content});
 
@@ -58,15 +59,13 @@ class _ContentState extends State<ContentPage>{
           ),
           TextButton(
             child: Text('수정'),
-            onPressed: () async{
+            onPressed: () {
               String reportTitle = titleController.text;
               String reportContent = contentController.text;
 
               Navigator.of(context).pop();
 
               print('reportTitle: $reportTitle');
-              await updateReport(content['id'], reportTitle, reportContent);
-
               updateRefresh();
 
               setState((){
@@ -81,35 +80,35 @@ class _ContentState extends State<ContentPage>{
   }
 
   void deleteItemEvent(BuildContext context){
-    deleteReport(reportInfo[0]['id']);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MyReportPage(),
-      )
-    );
+    // deleteReport(reportInfo[0]['id']);
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => MyReportPage(),
+    //   )
+    // );
   }
 
   //리포트 수정시 화면 새로고침
  Future<void> updateRefresh() async {
-    List reportList = [];
-
-    var result = await selectReport(content['id'])
-
-    // 특정 독후감 정보 저장
-    for (final row in result!.rows) {
-      var memo = {
-        'id': row.colByName('id'),
-        'userIndex': row.colByName('userIndex'),
-        'userName': row.colByName('userName'),
-        'reportTitle': row.colByName('reportTitle'),
-        'reportContent': row.colByName('reportContent'),
-        'createDate': row.colByName('createDate'),
-        'updateDate': row.colByName('updateDate')
-      };
-      reportList.add(memo);
-    }
-    print("memo update : $reportList");
-    context.read<ReportUpdator>().updateList(reportList);
+    // List reportList = [];
+    //
+    // var result = selectReport(content['id']);
+    //
+    // // 특정 독후감 정보 저장
+    // for (final row in result!.rows) {
+    //   var report = {
+    //     'id': row.colByName('id'),
+    //     'userIndex': row.colByName('userIndex'),
+    //     'userName': row.colByName('userName'),
+    //     'reportTitle': row.colByName('reportTitle'),
+    //     'reportContent': row.colByName('reportContent'),
+    //     'createDate': row.colByName('createDate'),
+    //     'updateDate': row.colByName('updateDate')
+    //   };
+    //   reportList.add(report);
+    // }
+    // print("report update : $reportList");
+    // context.read<ReportUpdator>().updateList(reportList);
  }
 
  @override

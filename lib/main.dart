@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
-import 'style.dart';
 import 'package:flutterpractice/ReportListProvider.dart';
 import 'package:provider/provider.dart';
+import 'ReportMainPage.dart';
 
 void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ReportUpdator()),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -21,7 +14,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MemoApp',
-      home: TokenCheck(),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (BuildContext context) => BookUpdator()),
+          ChangeNotifierProvider(create: (BuildContext context) => ReportUpdator()),
+        ],
+        child: MyReadingPage()
+      )
     );
   }
 }
