@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 void main() async{
+  // 필요함
   await initializeDateFormatting();
   runApp(const MyApp());
 }
@@ -20,20 +21,20 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
         ),
-        home: const MyHomePage(),
+        home: const part3page(),
       ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class part3page extends StatefulWidget {
+  const part3page({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<part3page> createState() => _part3pageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _part3pageState extends State<part3page> {
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +46,14 @@ class _MyHomePageState extends State<MyHomePage> {
           bottom: const TabBar(
             tabs: [
               Tab(text: '독서 일정'),
-              Tab(text: '최근 읽지 않은 도서',)
+              //Tab(text: '임시',)
             ],
           ),
         ),
         body: const TabBarView(
           children: [
             SchedulePage(),
-            SuspendedBookList()
+            //SuspendedBookList()
           ],
         ),
       ),
@@ -146,6 +147,7 @@ class _SchedulePageState extends State<SchedulePage> {
                                         '${context.watch<Scheduler>().scheduleList[dayIndex].toReadList[i].startPage} ~ '
                                             '${context.watch<Scheduler>().scheduleList[dayIndex].toReadList[i].endPage}'
                                     ),
+                                    /*
                                     trailing: IconButton(
                                       onPressed: (){
                                         //.read<Scheduler>().scheduleList[dayIndex].
@@ -161,6 +163,8 @@ class _SchedulePageState extends State<SchedulePage> {
                                       },
                                       icon: const Icon(Icons.edit),
                                     )
+
+                                     */
                                 ),
                               )
                           ),
@@ -200,6 +204,7 @@ class _EditScheduleWindowState extends State<EditScheduleWindow> {
           (index) => 'BOOK $index'
   );
 
+  final TextEditingController _bookTitleController = TextEditingController();
   final TextEditingController _startPageController = TextEditingController();
   final TextEditingController _endPageController = TextEditingController();
   bool _invalid = false;
@@ -282,28 +287,15 @@ class _EditScheduleWindowState extends State<EditScheduleWindow> {
               ),
               const SizedBox(height: 16),
               const Text('도서 제목'),
-              DropdownButton(
-                value: widget.toRead.bookTitle,
-                items: bookTitleList.map((e) {
-                  return DropdownMenuItem(
-                      value: e,
-                      child: Text(e)
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    widget.toRead.bookTitle = value!;
-                  });
-                },
-                itemHeight: 65,
-                isExpanded: true,
-                underline: Container(
-                  height: 1,
-                  color: Colors.black54,
+              TextField(
+                controller: _bookTitleController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                    hintText: '책 제목'
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('페이지'),
+              const Text('마지막으로 읽은 페이지'),
               Row(
                 children: [
                   Expanded(
@@ -311,27 +303,10 @@ class _EditScheduleWindowState extends State<EditScheduleWindow> {
                       controller: _startPageController,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
-                          hintText: '시작 페이지 (숫자)'
+                          hintText: '페이지 (숫자)'
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 50,
-                    child: Text(
-                      '~',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _endPageController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                          hintText: '끝 페이지 (숫자)'
-                      ),
-                    ),
-                  )
                 ],
               )
             ],
@@ -359,19 +334,20 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
   );
   DateTime _focusedDay = DateTime.now();
 
+  /*
   List<String> bookTitleList = List<String>.generate(5,
           (index) => 'BOOK $index'
   );
+  */
 
-  String _selectedBookTitle = '';
-
-  final TextEditingController _startPageController = TextEditingController();
-  final TextEditingController _endPageController = TextEditingController();
+  final TextEditingController _bookTitleController = TextEditingController();
+  final TextEditingController _totalPageController = TextEditingController();
+  //final TextEditingController _endPageController = TextEditingController();
 
   @override
   void dispose() {
-    _startPageController.dispose();
-    _endPageController.dispose();
+    _totalPageController.dispose();
+    //_endPageController.dispose();
     super.dispose();
   }
 
@@ -381,7 +357,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
   void initState() {
     super.initState();
     setState(() {
-      _selectedBookTitle = bookTitleList[0];
+      //_selectedBookTitle = "책 제목을 입력하세요";
     });
   }
 
@@ -395,8 +371,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: ElevatedButton(
                 onPressed: (){
-                  if (int.tryParse(_startPageController.text) == null ||
-                      int.tryParse(_endPageController.text) == null || (int.parse(_startPageController.text) > int.parse(_endPageController.text))) {
+                  if (int.tryParse(_totalPageController.text) == null || (int.parse(_totalPageController.text) <0 )) {
                     setState(() {
                       _invalid = true;
                     });
@@ -405,12 +380,24 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                       _invalid = false;
                     });
                     DateTime date = _selectedDay;
-                    String id = DateFormat('yyyy.MM.dd_hh:mm:ss').format(DateTime.now());
-                    String bookTitle = _selectedBookTitle;
-                    int startPage = int.parse(_startPageController.text);
-                    int endPage = int.parse(_endPageController.text);
-                    ToRead toRead = ToRead(id, bookTitle, startPage, endPage);
-                    context.read<Scheduler>().addSchedule(date, toRead);
+                    String id = '';
+                    String bookTitle = _bookTitleController.text;
+                    int totalPage = int.parse(_totalPageController.text);
+                    int startPage = 0;
+                    int deltaPage = totalPage~/28;
+                    int remPage = totalPage%28;
+                    for(int i=0; i<28; ++i) {
+                      if(i==27) {
+                        id = DateFormat('yyyy.MM.dd_hh:mm:ss').format(DateTime(date.year,date.month,date.day+i));
+                        ToRead toRead = ToRead(id, bookTitle, startPage,startPage+deltaPage+remPage);
+                        context.read<Scheduler>().addSchedule(DateTime(date.year,date.month,date.day+i), toRead);
+                        continue;
+                      }
+                      id = DateFormat('yyyy.MM.dd_hh:mm:ss').format(DateTime(date.year,date.month,date.day+i));
+                      ToRead toRead = ToRead(id, bookTitle, startPage,startPage+deltaPage);
+                      context.read<Scheduler>().addSchedule(DateTime(date.year,date.month,date.day+i), toRead);
+                      startPage=startPage+deltaPage;
+                    }
                     Navigator.pop(context);
                   }
                 },
@@ -471,24 +458,11 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('도서 제목'),
-                      DropdownButton(
-                        value: _selectedBookTitle,
-                        items: bookTitleList.map((e) {
-                          return DropdownMenuItem(
-                              value: e,
-                              child: Text(e)
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedBookTitle = value!;
-                          });
-                        },
-                        itemHeight: 65,
-                        isExpanded: true,
-                        underline: Container(
-                          height: 1,
-                          color: Colors.black54,
+                      TextField(
+                        controller: _bookTitleController,
+                        //keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                            hintText: '책 제목을 입력하세요'
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -497,30 +471,13 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                         children: [
                           Expanded(
                             child: TextField(
-                              controller: _startPageController,
+                              controller: _totalPageController,
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
-                                  hintText: '시작 페이지 (숫자)'
+                                  hintText: '총 페이지 (숫자)'
                               ),
                             ),
                           ),
-                          const SizedBox(
-                            width: 50,
-                            child: Text(
-                              '~',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          Expanded(
-                            child: TextField(
-                              controller: _endPageController,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                  hintText: '끝 페이지 (숫자)'
-                              ),
-                            ),
-                          )
                         ],
                       )
                     ],
@@ -551,7 +508,7 @@ class ToRead {
   int startPage;
   int endPage;
 
-  ToRead(this.id, this.bookTitle, this.startPage, this.endPage);
+  ToRead(this.id,this.bookTitle, this.startPage, this.endPage);
 }
 
 class ToReadListPerDay {
@@ -565,6 +522,7 @@ class Scheduler with ChangeNotifier {
 
   List<ToReadListPerDay> scheduleList = [];
 
+  // List를 추가하는 함수
   void addSchedule(DateTime date, ToRead toRead) {
     bool existSameDay = scheduleList.any((e) => e.date == date);
     if (existSameDay) {
@@ -579,6 +537,7 @@ class Scheduler with ChangeNotifier {
     notifyListeners();
   }
 
+  // List를 편집하는 함수
   void editSchedule(DateTime date, String id, ToRead toRead) {
     int dayIndex = scheduleList.indexWhere((e) => e.date == date);
     int toReadIndex = scheduleList[dayIndex].toReadList.indexWhere((e) => e.id == id);
@@ -586,6 +545,7 @@ class Scheduler with ChangeNotifier {
     notifyListeners();
   }
 
+  // date에 생성된 List를 삭제하는 함수?
   void deleteSchedule(DateTime date, String id) {
     int dayIndex = scheduleList.indexWhere((e) => e.date == date);
     scheduleList[dayIndex].toReadList.removeWhere((e) => e.id == id);
