@@ -158,9 +158,20 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Reading Tracker',
-      home: Week_MonthHome(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => BookUpdator()),
+        ChangeNotifierProvider(create: (context) => ReportUpdator()),
+      ],
+      child: MaterialApp(
+        title: 'Reading Tracker',
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const Week_MonthHome(),
+          '/reading': (context) => MyReadingPage(),
+          '/schedule': (context) => const part3page(),
+        },
+      ),
     );
   }
 }

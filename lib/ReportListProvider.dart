@@ -74,6 +74,9 @@ class BookUpdator extends ChangeNotifier {
     return _bookList.firstWhere((book) => book.bookTitle == bookTitle);
   }
 
+  String getNextId(){
+    return _bookList.length.toString();
+  }
 }
 
 
