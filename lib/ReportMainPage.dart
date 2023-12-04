@@ -207,7 +207,7 @@ class _MyReportPageState extends State<MyReportPage>{
         context,
         MaterialPageRoute(
           //정의한 ContentPage의 폼 호출
-          builder: (context) => ContentPage(content: content),
+          builder: (context) => ContentPage(content: content[index]),
         )
     );
 

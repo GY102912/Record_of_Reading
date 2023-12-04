@@ -3,8 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'ReportListProvider.dart';
 import 'package:provider/provider.dart';
 
+
 class ContentPage extends StatefulWidget {
-  final dynamic content;
+  final Report content;
 
   const ContentPage({Key? key, required this.content}) : super(key: key);
 
@@ -14,17 +15,17 @@ class ContentPage extends StatefulWidget {
 
 class _ContentState extends State<ContentPage>{
 
-  final dynamic content;
+
   _ContentState({required this.content});
 
-  List reportInfo = [];
+  final Report content;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
 
   Future<void> updateItemEvent(BuildContext context){
-    TextEditingController titleController = TextEditingController(text: reportInfo[0]['reportTitle']);
-    TextEditingController contentController = TextEditingController(text: reportInfo[0]['reportContent']);
+    TextEditingController titleController = TextEditingController(text: content.reportTitle);
+    TextEditingController contentController = TextEditingController(text: content.reportContent);
 
     return showDialog<void>(
         context: context,
@@ -67,9 +68,9 @@ class _ContentState extends State<ContentPage>{
                       print('reportTitle: $reportTitle');
                       updateRefresh();
 
-                      setState((){
-                        reportInfo = context.watch<ReportUpdator>().reportList;
-                      });
+                      // setState((){
+                      //   reportInfo = context.watch<ReportUpdator>().reportList;
+                      // });
                     }
                 )
               ]
@@ -113,22 +114,12 @@ class _ContentState extends State<ContentPage>{
   @override
   void initState(){
     super.initState();
-    var report = {
-      'id': content['id'],
-      'userIndex': content['userIndex'],
-      'userName': content['userName'],
-      'reportTitle': content['reportTitle'],
-      'reportContent': content['reportContent'],
-      'createDate': content['createDate'],
-      'updateDate': content['updateDate']
-    };
-    List reportList = [];
-    reportList.add(report);
 
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      context.read<ReportUpdator>().updateList(reportList);
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_){
+    //   context.read<ReportUpdator>().updateList(reportList);
+    // });
   }
+
   //독후감 눌렀을 때 보여주는 화면
   @override
   Widget build(BuildContext context) {
@@ -160,8 +151,7 @@ class _ContentState extends State<ContentPage>{
           padding: const EdgeInsets.all(20.0),
           child: Builder(builder: (context) {
             // 특정 메모 정보 출력
-            reportInfo = context.watch<ReportUpdator>().reportList;
-
+            Report content = widget.content;
             return Stack(
               children: <Widget>[
                 Row(
@@ -169,8 +159,7 @@ class _ContentState extends State<ContentPage>{
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(),
-                    Text(
-                      reportInfo[0]['memoTitle'],
+                    Text(content.reportTitle,
                       style:
                       TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                     ),
@@ -181,15 +170,11 @@ class _ContentState extends State<ContentPage>{
                     SizedBox(height: 35),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Text('작성자 : ${reportInfo[0]['userName']}')],
+                      children: [Text('작성일 : ${content.createTime}')],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Text('작성일 : ${reportInfo[0]['createDate']}')],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Text('수정일 : ${reportInfo[0]['updateDate']}')],
+                      children: [Text('수정일 : ${content.updateDate}')],
                     ),
                     Expanded(
                       child: Padding(
@@ -198,7 +183,7 @@ class _ContentState extends State<ContentPage>{
                           height: double.infinity,
                           width: double.infinity,
                           child: Text(
-                            reportInfo[0]['memoContent'],
+                              content.reportContent
                           ),
                         ),
                       ),
