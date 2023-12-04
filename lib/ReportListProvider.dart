@@ -70,8 +70,8 @@ class BookUpdator extends ChangeNotifier {
     }
   }
 
-  Book? getBook(String bookTitle){
-    return _bookList.firstWhere((book) => book.bookTitle == bookTitle);
+  List getBookReport(String bookTitle){
+    return _bookList.firstWhere((book) => book.bookTitle == bookTitle).reports;
   }
 
   String getNextId(){

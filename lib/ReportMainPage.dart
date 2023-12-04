@@ -230,54 +230,59 @@ class _MyReportPageState extends State<MyReportPage>{
               ChangeNotifierProvider(create: (context) => BookUpdator()),
               ChangeNotifierProvider(create: (context) => ReportUpdator()),
             ],
-            child: AlertDialog(
-              title: Text('메모 추가'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextField(
-                    controller: titleController,
-                    decoration: InputDecoration(
-                      labelText: '제목',
-                    ),
+            child: Scaffold(
+              appBar: AppBar(
+                actions: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.delete_outline),
+                    onPressed: (){
+                      Navigator.of(context).pop();
+                    },
                   ),
-                  TextField(
-                    controller: contentController,
-                    maxLines: null, //다중 라인 허용
-                    decoration: InputDecoration(
-                      labelText: '내용',
-                    ),
+                  IconButton(
+                    icon:Icon(Icons.save_alt),
+                    onPressed: () async {
+                      String title = titleController.text;
+                      String content = contentController.text;
+
+                      String id = Provider.of<BookUpdator>(context, listen: false).getNextId();
+                      Report report = Report(
+                          id: id,
+                          reportTitle: title,
+                          reportContent: content,
+                          createTime: DateTime.now(),
+                          updateDate: DateTime.now()
+                      );
+
+                      Provider.of<ReportUpdator>(context, listen: false).addReport(report);
+                      Provider.of<BookUpdator>(context, listen: false).addReportToBook(widget.book.bookTitle, report);
+                      Navigator.of(context).pop();
+                    },
                   ),
                 ],
               ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('취소'),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
+              body: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                      controller: titleController,
+                      decoration: InputDecoration(
+                        labelText: '제목',
+                      ),
+                    ),
+                    TextField(
+                      controller: contentController,
+                      maxLines: null, //다중 라인 허용
+                      decoration: InputDecoration(
+                        labelText: '내용',
+                      ),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  child:Text('추가'),
-                  onPressed: () async {
-                    String title = titleController.text;
-                    String content = contentController.text;
+              ),
 
-                    String id = Provider.of<BookUpdator>(context, listen: false).getNextId();
-                    Report report = Report(
-                        id: id,
-                        reportTitle: title,
-                        reportContent: content,
-                        createTime: DateTime.now(),
-                        updateDate: DateTime.now()
-                    );
-
-                    Provider.of<ReportUpdator>(context, listen: false).addReport(report);
-                    Provider.of<BookUpdator>(context, listen: false).addReportToBook(widget.book.bookTitle, report);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
             ),
           );
         }
@@ -296,7 +301,7 @@ class _MyReportPageState extends State<MyReportPage>{
               padding: const EdgeInsets.all(20.0),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: '검색어를 입력',
+                  hintText: '검색어를 입력하세요',
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value){
@@ -310,23 +315,23 @@ class _MyReportPageState extends State<MyReportPage>{
                 child: Builder(
                     builder: (context){
                       //수정이 일어나면 리스트 새로고침
-                      items = context.watch<ReportUpdator>().reportList;
+                      List reports = context.watch<BookUpdator>().getBookReport(widget.book.bookTitle);
 
                       //리포트가 없을 경우
-                      if(items.isEmpty){
-                        return Center(
+                      if(reports.isEmpty){
+                        return const Center(
                             child: Text(
-                              '아직 독후감이 없습니다.',
+                              '아직 독후감이 없습니다',
                               style: TextStyle(fontSize: 20),
                             )
                         );
                       }
                       else{
                         return ListView.builder(
-                            itemCount: items.length,
+                            itemCount: reports.length,
                             itemBuilder: (BuildContext context, int index){
                               // 독후감 정보 저장
-                              Report reportInfo = items[index];
+                              Report reportInfo = reports[index];
                               String reportTitle = reportInfo.reportTitle;
                               String reportContent = reportInfo.reportContent;
                               // String createDate = reportInfo['createDate'];
