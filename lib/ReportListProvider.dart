@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class Book{
   String bookTitle;
-  String userName;
+  String authorName;
   int currentPage;
   int totalPage;
   List<Report> reports;
@@ -11,7 +11,7 @@ class Book{
 
   Book({
     required this.bookTitle,
-    required this.userName,
+    required this.authorName,
     required this.currentPage,
     required this.totalPage,
     required this.reports

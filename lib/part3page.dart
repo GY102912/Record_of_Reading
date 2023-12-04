@@ -15,6 +15,11 @@ class _part3pageState extends State<part3page> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        appBar: PreferredSize(
+          child: AppBar(),
+          preferredSize: Size.fromHeight(0),
+        ),
+        /*
         appBar: AppBar(
           title: const Text('독서 일정 관리'),
           bottom: const TabBar(
@@ -24,6 +29,7 @@ class _part3pageState extends State<part3page> {
             ],
           ),
         ),
+         */
         body: const TabBarView(
           children: [
             SchedulePage(),

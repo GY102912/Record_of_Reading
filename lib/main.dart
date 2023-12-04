@@ -206,7 +206,7 @@ class _Week_MonthHomeState extends State<Week_MonthHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reading Tracker'),
+        title: const Text('Record of Reading'),
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
@@ -214,16 +214,16 @@ class _Week_MonthHomeState extends State<Week_MonthHome> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.assessment_outlined),
+            label: 'Achievement',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: 'Report',
+            icon: Icon(Icons.menu_book),
+            label: 'Record',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.event),
+            label: 'Schedule',
           ),
         ],
         currentIndex: _selectedIndex,

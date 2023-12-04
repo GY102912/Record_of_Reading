@@ -12,62 +12,97 @@ class MyReadingPage extends StatefulWidget {
 }
 
 class _MyReadingPageState extends State<MyReadingPage> {
-
   List bookList = [];
+  final bookTitleController = TextEditingController();
+  final authorNameController = TextEditingController();
+  final currentPageController = TextEditingController();
+  final totalPageController = TextEditingController();
+
+  void addBookEvent(BuildContext context) {
+    showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (context) => BookUpdator()),
+              ChangeNotifierProvider(create: (context) => ReportUpdator()),
+            ],
+            child: AlertDialog(
+              title: Text('책 추가'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextField(
+                    controller: bookTitleController,
+                    decoration: InputDecoration(
+                      labelText: '제목',
+                    ),
+                  ),
+                  TextField(
+                    controller: authorNameController,
+                    maxLines: null, //다중 라인 허용
+                    decoration: InputDecoration(
+                      labelText: '작가',
+                    ),
+                  ),
+                  TextField(
+                    controller: currentPageController,
+                    decoration: InputDecoration(
+                      labelText: '읽은 페이지 수',
+                    ),
+                  ),
+                  TextField(
+                    controller: totalPageController,
+                    maxLines: null, //다중 라인 허용
+                    decoration: InputDecoration(
+                      labelText: '총 페이지 수',
+                    ),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('취소'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('추가'),
+                  onPressed: () async {
+                    String bookTitle = bookTitleController.text;
+                    String authorName = authorNameController.text;
+                    String currentPage = currentPageController.text;
+                    String totalPage = totalPageController.text;
+
+                    Book book = Book(
+                        bookTitle: bookTitle,
+                        authorName: authorName,
+                        currentPage: int.parse(currentPage),
+                        totalPage: int.parse(totalPage),
+                        reports: [],
+                    );
+
+                    Provider.of<BookUpdator>(context, listen: false)
+                        .addBook(book);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     bookList = context.watch<BookUpdator>().bookList;
 
-    bookList = [
-      Book(
-        bookTitle: "The Great Gatsby",
-        userName: "John Doe",
-        currentPage: 29,
-        totalPage: 200,
-        reports: [
-          Report(
-            id: "1",
-            reportTitle: "Chapter 1 Summary",
-            reportContent: "This is the summary of Chapter 1.",
-            createTime: DateTime.now(),
-            updateDate: DateTime.now(),
-          ),
-          Report(
-            id: "2",
-            reportTitle: "Chapter 2 Summary",
-            reportContent: "This is the summary of Chapter 2.",
-            createTime: DateTime.now(),
-            updateDate: DateTime.now(),
-          ),
-        ],
-      ),
-      Book(
-        bookTitle: "The Catcher in the Rye",
-        userName: "Alice Smith",
-        currentPage: 50,
-        totalPage: 230,
-        reports: [
-          Report(
-            id: "3",
-            reportTitle: "Chapter 1 Analysis",
-            reportContent: "Detailed analysis of Chapter 1.",
-            createTime: DateTime.now(),
-            updateDate: DateTime.now(),
-          ),
-          Report(
-            id: "4",
-            reportTitle: "Chapter 2 Analysis",
-            reportContent: "In-depth analysis of Chapter 2.",
-            createTime: DateTime.now(),
-            updateDate: DateTime.now(),
-          ),
-        ],
-      )
-    ];
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text('책목록'),
+      appBar: PreferredSize(
+        child: AppBar(),
+        preferredSize: Size.fromHeight(0),
       ),
       body: ListView.builder(
           itemCount: bookList.length,
@@ -75,7 +110,12 @@ class _MyReadingPageState extends State<MyReadingPage> {
             return ReportCard(
                 book: bookList[index]
             );
-          } // Add other list items as neede
+          } // Add other list items as need
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => addBookEvent(context),
+        tooltip: '독후감 쓰기',
+        child: const Icon(Icons.book),
       ),
     );
   }
@@ -92,7 +132,7 @@ class ReportCard extends StatelessWidget{
   Widget build(BuildContext context){
     int currentPage = book.currentPage;
     int totalPage = book.totalPage;
-    double progressPercentage = currentPage/totalPage;
+    int progressPercentage = (currentPage / totalPage * 100).ceil();
 
     return GestureDetector(
       onTap: () {
@@ -102,10 +142,10 @@ class ReportCard extends StatelessWidget{
       },
       child:Card(
         child: ListTile(
-          leading: Icon(Icons.book),
+          leading: const Icon(Icons.book),
           title: Text(book.bookTitle),
           subtitle: Text(
-            'Reading Progress: ${progressPercentage.toStringAsFixed(2)}%',
+            'Reading Progress: ${progressPercentage.toStringAsFixed(0)}%',
             style: TextStyle(fontSize: 14),
           ),
           trailing: SizedBox(
@@ -181,7 +221,7 @@ class _MyReportPageState extends State<MyReportPage>{
   }
 
   //액션버튼 클릭 이벤트
-  void addItemEvent(BuildContext context){
+  void addReportEvent(BuildContext context){
     showDialog<void>(
         context: context,
         builder: (BuildContext context) {
@@ -219,23 +259,21 @@ class _MyReportPageState extends State<MyReportPage>{
                 ),
                 TextButton(
                   child:Text('추가'),
-                  onPressed: () {
+                  onPressed: () async {
                     String title = titleController.text;
                     String content = contentController.text;
-                    setState((){
-                      //print("addReport/setState");
-                      //수정 필요
-                      String id = context.watch<BookUpdator>().getNextId();
-                      Report report = Report(
-                          id: id,
-                          reportTitle: title,
-                          reportContent: content,
-                          createTime: DateTime.now(),
-                          updateDate: DateTime.now()
-                      );
-                      context.watch<ReportUpdator>().addReport(report);
-                      Navigator.of(context).pop();
-                    });
+
+                    String id = Provider.of<BookUpdator>(context, listen: false).getNextId();
+                    Report report = Report(
+                        id: id,
+                        reportTitle: title,
+                        reportContent: content,
+                        createTime: DateTime.now(),
+                        updateDate: DateTime.now()
+                    );
+
+                    Provider.of<ReportUpdator>(context, listen: false).addReport(report);
+                    Provider.of<BookUpdator>(context, listen: false).addReportToBook(widget.book.bookTitle, report);
                     Navigator.of(context).pop();
                   },
                 ),
@@ -306,7 +344,7 @@ class _MyReportPageState extends State<MyReportPage>{
                                         borderRadius:
                                         BorderRadius.all(Radius.elliptical(20,20,))),
                                     child: ListTile(
-                                      leading: Icon(Icons.pan_tool),
+                                      leading: Icon(Icons.description_outlined),
                                       title: Text(reportTitle),
                                       subtitle: Text(reportContent),
                                       // trailing: Text(b.),
@@ -323,9 +361,9 @@ class _MyReportPageState extends State<MyReportPage>{
           ]
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => addItemEvent(context),
+        onPressed: () => addReportEvent(context),
         tooltip: '독후감 쓰기',
-        child: Icon(Icons.book),
+        child: Icon(Icons.edit),
       ),
     );
   }
