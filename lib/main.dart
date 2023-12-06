@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'SchedulePage.dart';
 import 'Scheduler.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 class ReadingPlanProgress extends StatefulWidget {
   final int totalPages;
@@ -234,6 +236,10 @@ class _Week_MonthHomeState extends State<Week_MonthHome> {
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
   runApp(
