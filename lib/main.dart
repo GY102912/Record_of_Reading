@@ -15,6 +15,66 @@ import 'Scheduler.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting();
+  runApp(
+    MultiProvider(
+      providers:[
+        ChangeNotifierProvider( create: (context) => Scheduler() ),
+        ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => BookUpdator()),
+      ],
+      child: MyApp(),
+    ),
+    );
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    late User? userData; // 사용자 정보를 저장할 변수
+    String userId = "test";
+
+    return MaterialApp(
+        title: 'Reading Tracker',
+        initialRoute: '/',
+        routes: {
+          '/': (context) {
+            final userProvider = Provider.of<UserProvider>(context, listen: false);
+            return FutureBuilder(
+              future: userProvider.getUser(userId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  // 사용자 정보를 가져와서 변수에 저장
+                  userData = userProvider.getUser(userId) as User?; // 사용자 정보를 저장
+                  return Week_MonthHome(user: userData!);
+                } else {
+                  // 데이터를 아직 가져오지 못했을 때 로딩 표시 등을 할 수 있습니다.
+                  return CircularProgressIndicator();
+                }
+              },
+            );
+          },
+          '/reading': (context) {
+            if (userData != null) {
+              // 사용자 정보가 준비되었을 때 MyReadingPage로 이동
+              return MyReadingPage(user: userData!); // 사용자 정보를 넘겨줌
+            } else {
+              // 사용자 정보가 없을 때 로딩 등을 처리할 수 있습니다.
+              return const CircularProgressIndicator();
+            }
+          },
+          '/schedule': (context) => const part3page(),
+        },
+    );
+  }
+}
+
 class ReadingPlanProgress extends StatefulWidget {
   final int totalPages;
   int readPages;
@@ -157,46 +217,24 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
   }
 }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => BookUpdator()),
-        ChangeNotifierProvider(create: (context) => ReportUpdator()),
-      ],
-      child: MaterialApp(
-        title: 'Reading Tracker',
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const Week_MonthHome(),
-          '/reading': (context) => MyReadingPage(),
-          '/schedule': (context) => const part3page(),
-        },
-      ),
-    );
-  }
-}
+
 
 class Week_MonthHome extends StatefulWidget {
-  const Week_MonthHome({Key? key}) : super(key: key);
+
+  final User user;
+  const Week_MonthHome({Key? key, required this.user}) : super(key: key);
 
   @override
-  _Week_MonthHomeState createState() => _Week_MonthHomeState();
+  _Week_MonthHomeState createState() => _Week_MonthHomeState(user: user);
 }
 
 class _Week_MonthHomeState extends State<Week_MonthHome> {
+
+  final User user;
+  _Week_MonthHomeState({required this.user});
+
+
   int _selectedIndex = 0;
-  static final List<Widget> _widgetOptions = <Widget>[
-    ReadingPlanProgress(
-      totalPages: 500,
-      readPages: 0,
-      weeklyPlan: 100,
-      monthlyPlan: 400,
-    ),
-    MyReadingPage(),
-    part3page(),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -206,6 +244,18 @@ class _Week_MonthHomeState extends State<Week_MonthHome> {
 
   @override
   Widget build(BuildContext context) {
+
+    final List<Widget> _widgetOptions = <Widget>[
+      ReadingPlanProgress(
+        totalPages: 500,
+        readPages: 0,
+        weeklyPlan: 100,
+        monthlyPlan: 400,
+      ),
+      MyReadingPage(user: user),
+      part3page(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Record of Reading'),
@@ -235,35 +285,22 @@ class _Week_MonthHomeState extends State<Week_MonthHome> {
   }
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting();
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => Scheduler(),
-      child: MyApp(),
-    ),
-  );
-}
+
 
 class Week_Month extends StatefulWidget {
-  const Week_Month({Key? key}) : super(key: key);
+  final User user;
+  const Week_Month({Key? key, required this.user}) : super(key: key);
 
   @override
-  _Week_MonthState createState() => _Week_MonthState();
+  _Week_MonthState createState() => _Week_MonthState(user: user);
 }
 
 class _Week_MonthState extends State<Week_Month> {
+  final User user;
+
+  _Week_MonthState({required this.user});
+
   int _selectedIndex = 0;
-  static final List<Widget> _widgetOptions = <Widget>[
-    Week_Month(),
-    MyReadingPage(),
-    SchedulePage(),
-  ];
 
 
   void _onItemTapped(int index) {
@@ -274,6 +311,12 @@ class _Week_MonthState extends State<Week_Month> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _widgetOptions = <Widget>[
+      Week_Month(user: user),
+      MyReadingPage(user: user),
+      SchedulePage(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Reading Tracker'),

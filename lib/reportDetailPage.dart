@@ -4,131 +4,133 @@ import 'ReportListProvider.dart';
 import 'package:provider/provider.dart';
 
 class ContentPage extends StatefulWidget {
-  final dynamic content;
+  final User user;
+  final Book book;
+  final Report content;
 
-  const ContentPage({Key? key, required this.content}) : super(key: key);
+  const ContentPage({Key? key, required this.book, required this.user, required this.content}) : super(key: key);
 
   @override
-  State<ContentPage> createState() => _ContentState(content: content);
+  State<ContentPage> createState() => _ContentState(book: book, user: user, content: content);
 }
 
 class _ContentState extends State<ContentPage>{
 
-  final dynamic content;
-  _ContentState({required this.content});
 
-  List reportInfo = [];
+  _ContentState({required this.book, required this.user, required this.content});
+
+  final Report content;
+  final User user;
+  final Book book;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
 
-  Future<void> updateItemEvent(BuildContext context){
-    TextEditingController titleController = TextEditingController(text: reportInfo[0]['reportTitle']);
-    TextEditingController contentController = TextEditingController(text: reportInfo[0]['reportContent']);
+  void updateItemEvent(BuildContext context){
+    TextEditingController titleController = TextEditingController(text: content.reportTitle);
+    TextEditingController contentController = TextEditingController(text: content.reportContent);
 
-    return showDialog<void>(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-              title: Text('수정'),
-              content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    TextField(
-                      controller: titleController,
-                      decoration: InputDecoration(
-                        labelText: '제목',
-                      ),
-                    ),
-                    TextField(
-                        controller: contentController,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          labelText: '내용',
-                        )
-                    )
-                  ]
-              ),
-              actions:<Widget>[
-                TextButton(
-                  child: Text('취소'),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context){
+        return AlertDialog(
+          title: Text('수정'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  labelText: '제목',
                 ),
-                TextButton(
-                    child: Text('수정'),
-                    onPressed: () {
-                      String reportTitle = titleController.text;
-                      String reportContent = contentController.text;
+              ),
+              TextField(
+                controller: contentController,
+                maxLines: null,
+                decoration: InputDecoration(
+                  labelText: '내용',
+                ),
+              )
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('취소'),
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('수정'),
+              onPressed: () {
+                String reportTitle = titleController.text;
+                String reportContent = contentController.text;
+                String reportId = content.reportId;
 
-                      Navigator.of(context).pop();
 
-                      print('reportTitle: $reportTitle');
-                      updateRefresh();
+                Report updatedReport = Report(
+                  reportId: reportId, reportTitle: reportTitle, reportContent: reportContent, createTime: content.createTime, updateDate: DateTime.timestamp(),
+                );
 
-                      setState((){
-                        reportInfo = context.watch<ReportUpdator>().reportList;
-                      });
-                    }
-                )
-              ]
-          );
-        }
+                // 사용자가 수정한 내용으로 보고서 업데이트
+                Provider.of<BookUpdator>(context, listen: false).updateReportInBook(
+                  user.userId,
+                  book.bookId,
+                  content.reportId,
+                  updatedReport
+                );
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
-  void deleteItemEvent(BuildContext context){
-    // deleteReport(reportInfo[0]['id']);
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => MyReportPage(),
-    //   )
-    // );
+  void deleteItemEvent(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('삭제'),
+          content: Text('이 항목을 삭제하시겠습니까?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('삭제'),
+              onPressed: () {
+                // 사용자가 선택한 보고서를 삭제
+                Provider.of<BookUpdator>(context, listen: false).deleteReportFromBook(
+                  user.userId,
+                  book.bookId,
+                  content.reportId
+                );
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  //리포트 수정시 화면 새로고침
-  Future<void> updateRefresh() async {
-    // List reportList = [];
-    //
-    // var result = selectReport(content['id']);
-    //
-    // // 특정 독후감 정보 저장
-    // for (final row in result!.rows) {
-    //   var report = {
-    //     'id': row.colByName('id'),
-    //     'userIndex': row.colByName('userIndex'),
-    //     'userName': row.colByName('userName'),
-    //     'reportTitle': row.colByName('reportTitle'),
-    //     'reportContent': row.colByName('reportContent'),
-    //     'createDate': row.colByName('createDate'),
-    //     'updateDate': row.colByName('updateDate')
-    //   };
-    //   reportList.add(report);
-    // }
-    // print("report update : $reportList");
-    // context.read<ReportUpdator>().updateList(reportList);
-  }
+  // //리포트 수정시 화면 새로고침
+  // void updateRefresh() async {
+  // }
 
   @override
   void initState(){
     super.initState();
-    var report = {
-      'id': content['id'],
-      'userIndex': content['userIndex'],
-      'userName': content['userName'],
-      'reportTitle': content['reportTitle'],
-      'reportContent': content['reportContent'],
-      'createDate': content['createDate'],
-      'updateDate': content['updateDate']
-    };
-    List reportList = [];
-    reportList.add(report);
-
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      context.read<ReportUpdator>().updateList(reportList);
-    });
   }
+
   //독후감 눌렀을 때 보여주는 화면
   @override
   Widget build(BuildContext context) {
@@ -160,8 +162,7 @@ class _ContentState extends State<ContentPage>{
           padding: const EdgeInsets.all(20.0),
           child: Builder(builder: (context) {
             // 특정 메모 정보 출력
-            reportInfo = context.watch<ReportUpdator>().reportList;
-
+            Report content = widget.content;
             return Stack(
               children: <Widget>[
                 Row(
@@ -169,8 +170,7 @@ class _ContentState extends State<ContentPage>{
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(),
-                    Text(
-                      reportInfo[0]['memoTitle'],
+                    Text(content.reportTitle,
                       style:
                       TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                     ),
@@ -181,15 +181,11 @@ class _ContentState extends State<ContentPage>{
                     SizedBox(height: 35),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Text('작성자 : ${reportInfo[0]['userName']}')],
+                      children: [Text('작성일 : ${content.createTime}')],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Text('작성일 : ${reportInfo[0]['createDate']}')],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Text('수정일 : ${reportInfo[0]['updateDate']}')],
+                      children: [Text('수정일 : ${content.updateDate}')],
                     ),
                     Expanded(
                       child: Padding(
@@ -198,7 +194,7 @@ class _ContentState extends State<ContentPage>{
                           height: double.infinity,
                           width: double.infinity,
                           child: Text(
-                            reportInfo[0]['memoContent'],
+                              content.reportContent
                           ),
                         ),
                       ),
