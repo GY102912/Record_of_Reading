@@ -94,7 +94,7 @@ class _MyReadingPageState extends State<MyReadingPage> {
 
                 Book book = Book(
                   bookId: Uuid().v4(),
-                  authorName: '', // 적절한 작가 정보 설정
+                  authorName: authorName,
                   bookTitle: bookTitle,
                   currentPage: int.parse(currentPage),
                   totalPage: int.parse(totalPage),

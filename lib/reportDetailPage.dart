@@ -69,7 +69,7 @@ class _ContentState extends State<ContentPage>{
 
 
                 Report updatedReport = Report(
-                  reportId: reportId, reportTitle: reportTitle, reportContent: reportContent, createTime: content.createTime, updateDate: DateTime.timestamp(),
+                  reportId: reportId, reportTitle: reportTitle, reportContent: reportContent, createTime: content.createTime, updateDate: DateTime.now(),
                 );
 
                 // 사용자가 수정한 내용으로 보고서 업데이트
