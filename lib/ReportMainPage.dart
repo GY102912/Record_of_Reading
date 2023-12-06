@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'ReportListProvider.dart';
 import 'package:provider/provider.dart';
 import 'reportDetailPage.dart';
+import 'FirestoreService.dart';
 
 
 
@@ -12,22 +13,29 @@ class MyReadingPage extends StatefulWidget {
 }
 
 class _MyReadingPageState extends State<MyReadingPage> {
+
+
   List bookList = [];
   final bookTitleController = TextEditingController();
   final authorNameController = TextEditingController();
   final currentPageController = TextEditingController();
   final totalPageController = TextEditingController();
 
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // BookUpdator bookUpdator = Provider.of<BookUpdator>(context);
+    // bookUpdator.
+  }
+
   void addBookEvent(BuildContext context) {
     showDialog<void>(
         context: context,
         builder: (BuildContext context) {
-          return MultiProvider(
-            providers: [
-              ChangeNotifierProvider(create: (context) => BookUpdator()),
-              ChangeNotifierProvider(create: (context) => ReportUpdator()),
-            ],
-            child: AlertDialog(
+            return  AlertDialog(
               title: Text('책 추가'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -76,6 +84,7 @@ class _MyReadingPageState extends State<MyReadingPage> {
                     String totalPage = totalPageController.text;
 
                     Book book = Book(
+                        writer: '',
                         bookTitle: bookTitle,
                         authorName: authorName,
                         currentPage: int.parse(currentPage),
@@ -83,21 +92,21 @@ class _MyReadingPageState extends State<MyReadingPage> {
                         reports: [],
                     );
 
+
                     Provider.of<BookUpdator>(context, listen: false)
                         .addBook(book);
                     Navigator.of(context).pop();
                   },
                 ),
               ],
-            ),
-          );
+            );
         }
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    bookList = context.watch<BookUpdator>().bookList;
+    var bookUpdator = Provider.of<BookUpdator>(context);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -105,10 +114,10 @@ class _MyReadingPageState extends State<MyReadingPage> {
         preferredSize: Size.fromHeight(0),
       ),
       body: ListView.builder(
-          itemCount: bookList.length,
+          itemCount: bookUpdator.bookList.length,
           itemBuilder: (BuildContext context, int index){
             return ReportCard(
-                book: bookList[index]
+                book: bookUpdator.bookList[index]
             );
           } // Add other list items as need
       ),
@@ -180,16 +189,6 @@ class _MyReportPageState extends State<MyReportPage>{
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
 
-  //리포트 리스트 저장
-
-  //리포트 리스트 출력
-  // List<Report> getReportList(Book book) {
-  //   List reportList = [];
-  //   reportList = book.reports;
-  //
-  //   return reportList;
-  // }
-
   @override
   void initState() {
     // TODO: implement initState
@@ -207,7 +206,7 @@ class _MyReportPageState extends State<MyReportPage>{
         context,
         MaterialPageRoute(
           //정의한 ContentPage의 폼 호출
-          builder: (context) => ContentPage(content: content[index]),
+          builder: (context) => ContentPage(book: widget.book, content: content[index]),
         )
     );
 
@@ -225,12 +224,7 @@ class _MyReportPageState extends State<MyReportPage>{
     showDialog<void>(
         context: context,
         builder: (BuildContext context) {
-          return MultiProvider(
-            providers: [
-              ChangeNotifierProvider(create: (context) => BookUpdator()),
-              ChangeNotifierProvider(create: (context) => ReportUpdator()),
-            ],
-            child: Scaffold(
+          return Scaffold(
               appBar: AppBar(
                 actions: <Widget>[
                   IconButton(
@@ -254,7 +248,7 @@ class _MyReportPageState extends State<MyReportPage>{
                           updateDate: DateTime.now()
                       );
 
-                      Provider.of<ReportUpdator>(context, listen: false).addReport(report);
+                      // Provider.of<ReportUpdator>(context, listen: false).addReport(report);
                       Provider.of<BookUpdator>(context, listen: false).addReportToBook(widget.book.bookTitle, report);
                       Navigator.of(context).pop();
                     },
@@ -282,8 +276,6 @@ class _MyReportPageState extends State<MyReportPage>{
                   ],
                 ),
               ),
-
-            ),
           );
         }
     );

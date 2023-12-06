@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'FirestoreService.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class Book{
+  String writer;
   String bookTitle;
   String authorName;
   int currentPage;
@@ -10,6 +14,7 @@ class Book{
 
 
   Book({
+    required this.writer,
     required this.bookTitle,
     required this.authorName,
     required this.currentPage,
@@ -37,6 +42,7 @@ class Report{
 
 
 class BookUpdator extends ChangeNotifier {
+
   List<Book> _bookList = [];
   List<Book> get bookList => _bookList;
 
@@ -77,7 +83,78 @@ class BookUpdator extends ChangeNotifier {
   String getNextId(){
     return _bookList.length.toString();
   }
+
+  void updateReport(String bookTitle, String reportId, String newTitle, String newContent) {
+    // BookList에서 해당하는 책을 찾음
+    Book bookToUpdate = bookList.firstWhere(
+          (book) => book.bookTitle == bookTitle,
+      orElse: () => Book(
+        writer: '',
+        bookTitle: '',
+        authorName: '',
+        currentPage: 0,
+        totalPage: 0,
+        reports: [],
+      ),
+    );
+
+    if (bookToUpdate.bookTitle.isNotEmpty) {
+      Report? reportToUpdate = bookToUpdate.reports.firstWhere(
+            (report) => report.id == reportId,
+        orElse: () => Report(
+          id: '',
+          reportTitle: '',
+          reportContent: '',
+          createTime: DateTime.now(),
+          updateDate: DateTime.now(),
+        ),
+      );
+
+      if (reportToUpdate.id.isNotEmpty) {
+        reportToUpdate.reportTitle = newTitle;
+        reportToUpdate.reportContent = newContent;
+        reportToUpdate.updateDate = DateTime.now();
+        notifyListeners();
+      }
+    }
 }
+
+    void deleteReport(String bookTitle, String reportId) {
+      final bookIndex = _bookList.indexWhere((book) => book.bookTitle == bookTitle);
+      if (bookIndex != -1) {
+        _bookList[bookIndex].reports.removeWhere((report) => report.id == reportId);
+        notifyListeners();
+      }
+    }
+
+    
+
+  final FirestoreService _firestoreService = FirestoreService();
+
+  // 사용자의 도서 목록 가져오기
+  Stream<QuerySnapshot> getBooksForUserStream(String userId) {
+    return _firestoreService.getBooksForUser(userId);
+  }
+
+  // 사용자의 도서 추가
+  Future<void> addBookForUser(String userId, String bookId, Map<String, dynamic> bookData) async {
+    await _firestoreService.addBookForUser(userId, bookId, bookData);
+    notifyListeners();
+  }
+
+  // 사용자의 도서 업데이트
+  Future<void> updateBookForUser(String userId, String bookId, Map<String, dynamic> updatedBookData) async {
+    await _firestoreService.updateBookForUser(userId, bookId, updatedBookData);
+    notifyListeners();
+  }
+
+  // 사용자의 도서 삭제
+  Future<void> deleteBookForUser(String userId, String bookId) async {
+    await _firestoreService.deleteBookForUser(userId, bookId);
+    notifyListeners();
+  }
+
+  }
 
 
 class ReportUpdator extends ChangeNotifier {

@@ -6,118 +6,121 @@ import 'package:provider/provider.dart';
 
 class ContentPage extends StatefulWidget {
   final Report content;
+  final Book book;
 
-  const ContentPage({Key? key, required this.content}) : super(key: key);
+  const ContentPage({Key? key, required this.book, required this.content}) : super(key: key);
 
   @override
-  State<ContentPage> createState() => _ContentState(content: content);
+  State<ContentPage> createState() => _ContentState(book: book, content: content);
 }
 
 class _ContentState extends State<ContentPage>{
 
 
-  _ContentState({required this.content});
+  _ContentState({required this.book, required this.content});
 
   final Report content;
+  final Book book;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
 
-  Future<void> updateItemEvent(BuildContext context){
+  void updateItemEvent(BuildContext context){
     TextEditingController titleController = TextEditingController(text: content.reportTitle);
     TextEditingController contentController = TextEditingController(text: content.reportContent);
 
-    return showDialog<void>(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-              title: Text('수정'),
-              content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    TextField(
-                      controller: titleController,
-                      decoration: InputDecoration(
-                        labelText: '제목',
-                      ),
-                    ),
-                    TextField(
-                        controller: contentController,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          labelText: '내용',
-                        )
-                    )
-                  ]
-              ),
-              actions:<Widget>[
-                TextButton(
-                  child: Text('취소'),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context){
+        return AlertDialog(
+          title: Text('수정'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  labelText: '제목',
                 ),
-                TextButton(
-                    child: Text('수정'),
-                    onPressed: () {
-                      String reportTitle = titleController.text;
-                      String reportContent = contentController.text;
+              ),
+              TextField(
+                controller: contentController,
+                maxLines: null,
+                decoration: InputDecoration(
+                  labelText: '내용',
+                ),
+              )
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('취소'),
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('수정'),
+              onPressed: () {
+                String reportTitle = titleController.text;
+                String reportContent = contentController.text;
 
-                      Navigator.of(context).pop();
+                // 사용자가 수정한 내용으로 보고서 업데이트
+                Provider.of<BookUpdator>(context, listen: false).updateReport(
+                  widget.book.bookTitle, // 해당 책의 제목
+                  content.id, // 수정하려는 보고서의 ID
+                  reportTitle, // 새로운 제목
+                  reportContent, // 새로운 내용
+                );
 
-                      print('reportTitle: $reportTitle');
-                      updateRefresh();
-
-                      // setState((){
-                      //   reportInfo = context.watch<ReportUpdator>().reportList;
-                      // });
-                    }
-                )
-              ]
-          );
-        }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
-  void deleteItemEvent(BuildContext context){
-    // deleteReport(reportInfo[0]['id']);
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => MyReportPage(),
-    //   )
-    // );
+  void deleteItemEvent(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('삭제'),
+          content: Text('이 항목을 삭제하시겠습니까?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('삭제'),
+              onPressed: () {
+                // 사용자가 선택한 보고서를 삭제
+                Provider.of<BookUpdator>(context, listen: false).deleteReport(
+                  widget.book.bookTitle, // 해당 책의 제목
+                  content.id, // 삭제하려는 보고서의 ID
+                );
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  //리포트 수정시 화면 새로고침
-  Future<void> updateRefresh() async {
-    // List reportList = [];
-    //
-    // var result = selectReport(content['id']);
-    //
-    // // 특정 독후감 정보 저장
-    // for (final row in result!.rows) {
-    //   var report = {
-    //     'id': row.colByName('id'),
-    //     'userIndex': row.colByName('userIndex'),
-    //     'userName': row.colByName('userName'),
-    //     'reportTitle': row.colByName('reportTitle'),
-    //     'reportContent': row.colByName('reportContent'),
-    //     'createDate': row.colByName('createDate'),
-    //     'updateDate': row.colByName('updateDate')
-    //   };
-    //   reportList.add(report);
-    // }
-    // print("report update : $reportList");
-    // context.read<ReportUpdator>().updateList(reportList);
-  }
+  // //리포트 수정시 화면 새로고침
+  // void updateRefresh() async {
+  // }
 
   @override
   void initState(){
     super.initState();
-
-    // WidgetsBinding.instance.addPostFrameCallback((_){
-    //   context.read<ReportUpdator>().updateList(reportList);
-    // });
   }
 
   //독후감 눌렀을 때 보여주는 화면
