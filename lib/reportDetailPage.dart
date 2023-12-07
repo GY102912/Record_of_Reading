@@ -61,7 +61,7 @@ class _ContentState extends State<ContentPage>{
             ),
             TextButton(
               child: Text('수정'),
-              onPressed: () {
+              onPressed: () async {
                 String reportTitle = titleController.text;
                 String reportContent = contentController.text;
                 String reportId = content.reportId;
@@ -72,13 +72,13 @@ class _ContentState extends State<ContentPage>{
                 );
 
                 // 사용자가 수정한 내용으로 보고서 업데이트
-                Provider.of<BookUpdator>(context, listen: false).updateReportInBook(
+                await Provider.of<BookUpdator>(context, listen: false).updateReportInBook(
                   user.userId,
                   book.bookId,
                   content.reportId,
                   updatedReport
                 );
-                Provider.of<UserProvider>(context, listen: false).getUser(user.userId, user.userName);
+                await Provider.of<UserProvider>(context, listen: false).getUser(user.userId, user.userName) as User?;
                 Navigator.of(context).pop();
               },
             ),
@@ -104,14 +104,14 @@ class _ContentState extends State<ContentPage>{
             ),
             TextButton(
               child: Text('삭제'),
-              onPressed: () {
+              onPressed: () async {
                 // 사용자가 선택한 보고서를 삭제
-                Provider.of<BookUpdator>(context, listen: false).deleteReportFromBook(
+                await Provider.of<BookUpdator>(context, listen: false).deleteReportFromBook(
                   user.userId,
                   book.bookId,
                   content.reportId
                 );
-                Provider.of<UserProvider>(context, listen: false).getUser(user.userId, user.userName);
+                await Provider.of<UserProvider>(context, listen: false).getUser(user.userId, user.userName) as User?;
                 Navigator.of(context).pop();
               },
             ),

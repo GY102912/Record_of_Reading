@@ -98,11 +98,9 @@ class _MyReadingPageState extends State<MyReadingPage> {
                   reports: [],
                 );
 
-                bookUpdator.addBookForUser(userId,book); // BookUpdator를 사용하여 책 추가
-                userProvider.getUser(userId, userName);
-                setState(() {
+                await bookUpdator.addBookForUser(userId,book); // BookUpdator를 사용하여 책 추가
+                await userProvider.getUser(userId, userName);
 
-                });
                 Navigator.of(context).pop();
               },
             ),
@@ -268,10 +266,10 @@ class _MyReportPageState extends State<MyReportPage>{
                     );
 
                     // Provider.of<ReportUpdator>(context, listen: false).addReport(report);
-                    Provider.of<BookUpdator>(context, listen: false)
+                    await Provider.of<BookUpdator>(context, listen: false)
                         .addReportToBook(user.userId, book.bookId, report);
 
-                    Provider.of<UserProvider>(context, listen: false)
+                    await Provider.of<UserProvider>(context, listen: false)
                         .getUser(user.userId, user.userName);
 
                     Navigator.of(context).pop();
