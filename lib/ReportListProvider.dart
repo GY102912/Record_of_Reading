@@ -246,6 +246,22 @@ class UserProvider extends ChangeNotifier {
     }
     return foundBook;
   }
+
+  Report? findReport(String bookId, String reportId) {
+    // 주어진 bookId에 해당하는 책을 찾습니다.
+    Book? book = findBook(bookId);
+
+    // 해당 책을 찾았는지 확인하고, 책을 찾았다면 리포트를 찾습니다.
+    if (book != null) {
+      // 책에서 주어진 reportId에 해당하는 리포트를 찾습니다.
+      for (var report in book.reports) {
+        if (report.reportId == reportId) {
+          return report; // 해당 리포트를 찾으면 반환합니다.
+        }
+      }
+    }
+    return null; // 주어진 bookId에 해당하는 책이 없거나 리포트를 찾지 못한 경우 null 반환
+  }
 }
 
 class BookUpdator extends ChangeNotifier {

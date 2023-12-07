@@ -16,7 +16,6 @@ class ContentPage extends StatefulWidget {
 
 class _ContentState extends State<ContentPage>{
 
-
   _ContentState({required this.book, required this.user, required this.content});
 
   final Report content;
@@ -79,7 +78,7 @@ class _ContentState extends State<ContentPage>{
                   content.reportId,
                   updatedReport
                 );
-
+                Provider.of<UserProvider>(context, listen: false).getUser(user.userId, user.userName);
                 Navigator.of(context).pop();
               },
             ),
@@ -112,7 +111,7 @@ class _ContentState extends State<ContentPage>{
                   book.bookId,
                   content.reportId
                 );
-
+                Provider.of<UserProvider>(context, listen: false).getUser(user.userId, user.userName);
                 Navigator.of(context).pop();
               },
             ),
@@ -134,78 +133,82 @@ class _ContentState extends State<ContentPage>{
   //독후감 눌렀을 때 보여주는 화면
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // 좌측 상단의 뒤로 가기 버튼
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context, 1);
-          },
-        ),
-        title: Text('리포트 상세 보기'),
-        actions: [
-          IconButton(
-            onPressed: () => updateItemEvent(context),
-            icon: Icon(Icons.edit),
-            tooltip: "리포트 수정",
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child){
+        return Scaffold(
+          appBar: AppBar(
+            // 좌측 상단의 뒤로 가기 버튼
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context, 1);
+              },
+            ),
+            title: Text('리포트 상세 보기'),
+            actions: [
+              IconButton(
+                onPressed: () => updateItemEvent(context),
+                icon: Icon(Icons.edit),
+                tooltip: "리포트 수정",
+              ),
+              IconButton(
+                onPressed: () => deleteItemEvent(context),
+                icon: Icon(CupertinoIcons.delete_solid),
+                tooltip: "리포트 삭제",
+              ),
+            ],
           ),
-          IconButton(
-            onPressed: () => deleteItemEvent(context),
-            icon: Icon(CupertinoIcons.delete_solid),
-            tooltip: "리포트 삭제",
-          ),
-        ],
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Builder(builder: (context) {
-            // 특정 메모 정보 출력
-            Report content = widget.content;
-            return Stack(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(),
-                    Text(content.reportTitle,
-                      style:
-                      TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    SizedBox(height: 35),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Builder(builder: (context) {
+                // 특정 메모 정보 출력
+                Report? ncontent = userProvider.findReport(book.bookId, content.reportId);
+                return Stack(
+                  children: <Widget>[
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Text('작성일 : ${content.createTime}')],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Text('수정일 : ${content.updateDate}')],
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: SizedBox(
-                          height: double.infinity,
-                          width: double.infinity,
-                          child: Text(
-                              content.reportContent
-                          ),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(),
+                        Text(ncontent!.reportTitle,
+                          style:
+                          TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    )
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        SizedBox(height: 35),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [Text('작성일 : ${ncontent!.createTime}')],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [Text('수정일 : ${ncontent!.updateDate}')],
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: SizedBox(
+                              height: double.infinity,
+                              width: double.infinity,
+                              child: Text(
+                                  ncontent!.reportContent
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ],
-                ),
-              ],
-            );
-          }),
-        ),
-      ),
+                );
+              }),
+            ),
+          ),
+        );
+      }
     );
   }
 }

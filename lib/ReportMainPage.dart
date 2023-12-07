@@ -226,9 +226,7 @@ class _MyReportPageState extends State<MyReportPage>{
   //리스트뷰 카드 클릭 이벤트
   void cardClickEvent(BuildContext context, int index) {
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-    final BookUpdator bookUpdator = Provider.of<BookUpdator>(context, listen: false);
-
-    dynamic content = book.reports;
+    List<Report>? content = userProvider.findBook(book.bookId)?.reports;
 
     print('$content');
     //리스트 업데이트 확인 변수 (false: 업데이트 x, true: 업데이트)
@@ -236,7 +234,7 @@ class _MyReportPageState extends State<MyReportPage>{
         context,
         MaterialPageRoute(
           //정의한 ContentPage의 폼 호출
-          builder: (context) => ContentPage(user: user, book: book, content: content[index]),
+          builder: (context) => ContentPage(user: user, book: book, content: content![index]),
         )
     );
   }
@@ -272,8 +270,10 @@ class _MyReportPageState extends State<MyReportPage>{
                     // Provider.of<ReportUpdator>(context, listen: false).addReport(report);
                     Provider.of<BookUpdator>(context, listen: false)
                         .addReportToBook(user.userId, book.bookId, report);
+
                     Provider.of<UserProvider>(context, listen: false)
                         .getUser(user.userId, user.userName);
+
                     Navigator.of(context).pop();
                     titleController.clear();
                     contentController.clear();
