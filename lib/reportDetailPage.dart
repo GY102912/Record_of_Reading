@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'ReportListProvider.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class ContentPage extends StatefulWidget {
   final User user;
@@ -26,66 +27,81 @@ class _ContentState extends State<ContentPage>{
   final TextEditingController contentController = TextEditingController();
 
   void updateItemEvent(BuildContext context){
-    TextEditingController titleController = TextEditingController(text: content.reportTitle);
-    TextEditingController contentController = TextEditingController(text: content.reportContent);
+
+    Report? con = Provider.of<UserProvider>(context, listen: false).findReport(book.bookId, content.reportId);
+    
+    TextEditingController titleController = TextEditingController(text: con!.reportTitle);
+    TextEditingController contentController = TextEditingController(text: con!.reportContent);
+
 
     showDialog<void>(
-      context: context,
-      builder: (BuildContext context){
-        return AlertDialog(
-          title: Text('수정'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(
-                  labelText: '제목',
+        context: context,
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('수정'),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.delete_outline),
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                  },
                 ),
+                IconButton(
+                  icon:Icon(Icons.save_alt),
+                  onPressed: () async {
+                    String title = titleController.text;
+                    String content = contentController.text;
+
+                    Report report = Report(
+                        reportId: con.reportId,
+                        reportTitle: title,
+                        reportContent: content,
+                        createTime: con.createTime,
+                        updateDate: DateTime.now()
+                    );
+
+                    // Provider.of<ReportUpdator>(context, listen: false).addReport(report);
+                    await Provider.of<BookUpdator>(context, listen: false)
+                        .updateReportInBook(user.userId, book.bookId, con.reportId, report);
+
+                    await Provider.of<UserProvider>(context, listen: false)
+                        .getUser(user.userId, user.userName);
+
+
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    titleController.clear();
+                    contentController.clear();
+                  },
+                ),
+              ],
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      labelText: '제목',
+                    ),
+                  ),
+                  TextField(
+                    controller: contentController,
+                    maxLines: null, //다중 라인 허용
+                    decoration: InputDecoration(
+                      labelText: '내용',
+                    ),
+                  ),
+                ],
               ),
-              TextField(
-                controller: contentController,
-                maxLines: null,
-                decoration: InputDecoration(
-                  labelText: '내용',
-                ),
-              )
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('취소'),
-              onPressed: (){
-                Navigator.of(context).pop();
-              },
             ),
-            TextButton(
-              child: Text('수정'),
-              onPressed: () async {
-                String reportTitle = titleController.text;
-                String reportContent = contentController.text;
-                String reportId = content.reportId;
-
-
-                Report updatedReport = Report(
-                  reportId: reportId, reportTitle: reportTitle, reportContent: reportContent, createTime: content.createTime, updateDate: DateTime.now(),
-                );
-
-                // 사용자가 수정한 내용으로 보고서 업데이트
-                await Provider.of<BookUpdator>(context, listen: false).updateReportInBook(
-                  user.userId,
-                  book.bookId,
-                  content.reportId,
-                  updatedReport
-                );
-                await Provider.of<UserProvider>(context, listen: false).getUser(user.userId, user.userName) as User?;
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+          );
+        }
     );
+
   }
 
   void deleteItemEvent(BuildContext context) {
@@ -112,6 +128,7 @@ class _ContentState extends State<ContentPage>{
                   content.reportId
                 );
                 await Provider.of<UserProvider>(context, listen: false).getUser(user.userId, user.userName) as User?;
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
             ),
