@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:untitled3/part3page.dart';
+import 'part3page.dart';
 import 'ReportMainPage.dart';
 import 'ReportListProvider.dart';
 import 'package:provider/provider.dart';
@@ -37,40 +37,46 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    late User? userData; // 사용자 정보를 저장할 변수
     String userId = "test";
+    String userName = "test";
 
-    return MaterialApp(
-        title: 'Reading Tracker',
-        initialRoute: '/',
-        routes: {
-          '/': (context) {
-            final userProvider = Provider.of<UserProvider>(context, listen: false);
-            return FutureBuilder(
-              future: userProvider.getUser(userId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  // 사용자 정보를 가져와서 변수에 저장
-                  userData = userProvider.getUser(userId) as User?; // 사용자 정보를 저장
-                  return Week_MonthHome(user: userData!);
-                } else {
-                  // 데이터를 아직 가져오지 못했을 때 로딩 표시 등을 할 수 있습니다.
-                  return CircularProgressIndicator();
-                }
+    return FutureBuilder<User?>(
+      future: Provider.of<UserProvider>(context, listen: false).getUser(userId, userName),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData && snapshot.data != null) {
+            print(snapshot.data);
+            User userData = snapshot.data!; // snapshot.data는 User? 타입이므로 null 검사 후 안전하게 사용
+            return MaterialApp(
+              title: 'Reading Tracker',
+              initialRoute: '/',
+              routes: {
+                '/': (context) => Week_MonthHome(),
+                '/reading': (context) => MyReadingPage(),
+                '/schedule': (context) => const part3page(),
               },
             );
-          },
-          '/reading': (context) {
-            if (userData != null) {
-              // 사용자 정보가 준비되었을 때 MyReadingPage로 이동
-              return MyReadingPage(user: userData!); // 사용자 정보를 넘겨줌
-            } else {
-              // 사용자 정보가 없을 때 로딩 등을 처리할 수 있습니다.
-              return const CircularProgressIndicator();
-            }
-          },
-          '/schedule': (context) => const part3page(),
-        },
+          } else {
+            // 사용자 데이터가 없는 경우 예외 처리
+            return  Center(
+              child: SizedBox(
+                width: 50, // 조정하고 싶은 너비
+                height: 50, // 조정하고 싶은 높이
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+        } else {
+          // 데이터를 아직 가져오는 중인 경우 로딩 표시
+          return Center(
+            child: SizedBox(
+              width: 50, // 조정하고 싶은 너비
+              height: 50, // 조정하고 싶은 높이
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      },
     );
   }
 }
@@ -221,17 +227,13 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
 
 class Week_MonthHome extends StatefulWidget {
 
-  final User user;
-  const Week_MonthHome({Key? key, required this.user}) : super(key: key);
+  const Week_MonthHome({Key? key}) : super(key: key);
 
   @override
-  _Week_MonthHomeState createState() => _Week_MonthHomeState(user: user);
+  _Week_MonthHomeState createState() => _Week_MonthHomeState();
 }
 
 class _Week_MonthHomeState extends State<Week_MonthHome> {
-
-  final User user;
-  _Week_MonthHomeState({required this.user});
 
 
   int _selectedIndex = 0;
@@ -252,7 +254,7 @@ class _Week_MonthHomeState extends State<Week_MonthHome> {
         weeklyPlan: 100,
         monthlyPlan: 400,
       ),
-      MyReadingPage(user: user),
+      MyReadingPage(),
       part3page(),
     ];
 
@@ -288,17 +290,14 @@ class _Week_MonthHomeState extends State<Week_MonthHome> {
 
 
 class Week_Month extends StatefulWidget {
-  final User user;
-  const Week_Month({Key? key, required this.user}) : super(key: key);
+
+  const Week_Month({Key? key}) : super(key: key);
 
   @override
-  _Week_MonthState createState() => _Week_MonthState(user: user);
+  _Week_MonthState createState() => _Week_MonthState();
 }
 
 class _Week_MonthState extends State<Week_Month> {
-  final User user;
-
-  _Week_MonthState({required this.user});
 
   int _selectedIndex = 0;
 
@@ -312,8 +311,8 @@ class _Week_MonthState extends State<Week_Month> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> _widgetOptions = <Widget>[
-      Week_Month(user: user),
-      MyReadingPage(user: user),
+      Week_Month(),
+      MyReadingPage(),
       SchedulePage(),
     ];
 
