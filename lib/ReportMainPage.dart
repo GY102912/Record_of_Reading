@@ -42,41 +42,43 @@ class _MyReadingPageState extends State<MyReadingPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('책 추가'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                controller: bookTitleController,
-                decoration: InputDecoration(
-                  labelText: '제목',
+          title: const Text('책 추가'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextField(
+                  controller: bookTitleController,
+                  decoration: const InputDecoration(
+                    labelText: '제목',
+                  ),
                 ),
-              ),
-              TextField(
-                controller: authorNameController,
-                maxLines: null, //다중 라인 허용
-                decoration: InputDecoration(
-                  labelText: '작가',
+                TextField(
+                  controller: authorNameController,
+                  maxLines: null, //다중 라인 허용
+                  decoration: const InputDecoration(
+                    labelText: '작가',
+                  ),
                 ),
-              ),
-              TextField(
-                controller: currentPageController,
-                decoration: InputDecoration(
-                  labelText: '읽은 페이지 수',
+                TextField(
+                  controller: currentPageController,
+                  decoration: const InputDecoration(
+                    labelText: '읽은 페이지 수',
+                  ),
                 ),
-              ),
-              TextField(
-                controller: totalPageController,
-                maxLines: null, //다중 라인 허용
-                decoration: InputDecoration(
-                  labelText: '총 페이지 수',
+                TextField(
+                  controller: totalPageController,
+                  maxLines: null, //다중 라인 허용
+                  decoration: const InputDecoration(
+                    labelText: '총 페이지 수',
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('취소'),
+              child: const Text('취소'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -90,7 +92,7 @@ class _MyReadingPageState extends State<MyReadingPage> {
                 String totalPage = totalPageController.text;
 
                 Book book = Book(
-                  bookId: Uuid().v4(),
+                  bookId: const Uuid().v4(),
                   authorName: authorName,
                   bookTitle: bookTitle,
                   currentPage: int.parse(currentPage),
@@ -121,7 +123,7 @@ class _MyReadingPageState extends State<MyReadingPage> {
         return Scaffold(
           appBar: PreferredSize(
             child: AppBar(),
-            preferredSize: Size.fromHeight(0),
+            preferredSize: const Size.fromHeight(0),
           ),
           body: ListView.builder(
             itemCount: bookList.length,
@@ -175,7 +177,7 @@ class ReportCard extends StatelessWidget{
           title: Text(book.bookTitle),
           subtitle: Text(
             'Reading Progress: ${progressPercentage.toStringAsFixed(0)}%',
-            style: TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: 14),
           ),
           trailing: SizedBox(
             width: 24,
@@ -247,19 +249,19 @@ class _MyReportPageState extends State<MyReportPage>{
             appBar: AppBar(
               actions: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline),
                   onPressed: (){
                     Navigator.of(context).pop();
                   },
                 ),
                 IconButton(
-                  icon:Icon(Icons.save_alt),
+                  icon:const Icon(Icons.save_alt),
                   onPressed: () async {
                     String title = titleController.text;
                     String content = contentController.text;
 
                     Report report = Report(
-                        reportId: Uuid().v4(),
+                        reportId: const Uuid().v4(),
                         reportTitle: title,
                         reportContent: content,
                         createTime: DateTime.now(),
@@ -287,14 +289,14 @@ class _MyReportPageState extends State<MyReportPage>{
                 children: <Widget>[
                   TextField(
                     controller: titleController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: '제목',
                     ),
                   ),
                   TextField(
                     controller: contentController,
                     maxLines: null, //다중 라인 허용
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: '내용',
                     ),
                   ),
@@ -319,7 +321,7 @@ class _MyReportPageState extends State<MyReportPage>{
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: '검색어를 입력하세요',
                       border: OutlineInputBorder(),
                     ),
@@ -357,17 +359,17 @@ class _MyReportPageState extends State<MyReportPage>{
 
                                   //검색 기능, 검색어가 있을 경우, 제목으로만 검색
                                   if (searchText.isNotEmpty && !reports[index].reportTitle.toLowerCase().contains(searchText.toLowerCase())){
-                                    return SizedBox.shrink();
+                                    return const SizedBox.shrink();
                                   }
                                   //검색어 없거나 모든 항목 표시
                                   else{
                                     return Card(
                                         elevation: 3,
-                                        shape: RoundedRectangleBorder(
+                                        shape: const RoundedRectangleBorder(
                                             borderRadius:
                                             BorderRadius.all(Radius.elliptical(20,20,))),
                                         child: ListTile(
-                                          leading: Icon(Icons.description_outlined),
+                                          leading: const Icon(Icons.description_outlined),
                                           title: Text(reportTitle),
                                           subtitle: Text(reportContent),
                                           // trailing: Text(b.),
@@ -387,7 +389,7 @@ class _MyReportPageState extends State<MyReportPage>{
             backgroundColor: const Color(0xff69b0ee),
             onPressed: () => addReportEvent(context),
             tooltip: '독후감 쓰기',
-            child: Icon(Icons.edit),
+            child: const Icon(Icons.edit),
           ),
         );
       }

@@ -47,18 +47,14 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData && snapshot.data != null) {
-            print(snapshot.data);
+            //print(snapshot.data);
             ThisUser userData = snapshot.data!; // snapshot.data는 User? 타입이므로 null 검사 후 안전하게 사용
             return MaterialApp(
               title: 'Reading Tracker',
               home: StreamBuilder(
                   stream: FirebaseAuth.instance.authStateChanges(),
                   builder: (context, snapshot) {
-                    if (snapshot.hasData){
-                      return const Week_MonthHome();
-                    } else {
-                      return const LoginPage();
-                    }
+                    return const LoginPage();
                   }
               ),
               routes: {
@@ -76,7 +72,7 @@ class MyApp extends StatelessWidget {
             );
           } else {
             // 사용자 데이터가 없는 경우 예외 처리
-            return  Center(
+            return  const Center(
               child: SizedBox(
                 width: 50, // 조정하고 싶은 너비
                 height: 50, // 조정하고 싶은 높이
@@ -86,7 +82,7 @@ class MyApp extends StatelessWidget {
           }
         } else {
           // 데이터를 아직 가져오는 중인 경우 로딩 표시
-          return Center(
+          return const Center(
             child: SizedBox(
               width: 50, // 조정하고 싶은 너비
               height: 50, // 조정하고 싶은 높이
@@ -129,17 +125,17 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('페이지 추가'),
+          title: const Text('페이지 추가'),
           content: TextField(
             keyboardType: TextInputType.number,
             onChanged: (value) {
               addedPages = int.parse(value);
             },
-            decoration: InputDecoration(hintText: "읽은 페이지 수는?"),
+            decoration: const InputDecoration(hintText: "읽은 페이지 수는?"),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('확인'),
+              child: const Text('확인'),
               onPressed: () {
                 incrementReadPages(addedPages);
                 Navigator.of(context).pop();
@@ -158,7 +154,7 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('독서 목표 설정'),
+          title: const Text('독서 목표 설정'),
           content: Column(
             children: [
               TextField(
@@ -166,20 +162,20 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
                 onChanged: (value) {
                   newWeeklyPlan = int.parse(value);
                 },
-                decoration: InputDecoration(hintText: "주간 목표(페이지)를 입력하세요"),
+                decoration: const InputDecoration(hintText: "주간 목표(페이지)를 입력하세요"),
               ),
               TextField(
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
                   newMonthlyPlan = int.parse(value);
                 },
-                decoration: InputDecoration(hintText: "월간 목표(페이지)를 입력하세요"),
+                decoration: const InputDecoration(hintText: "월간 목표(페이지)를 입력하세요"),
               ),
             ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Confirm'),
+              child: const Text('Confirm'),
               onPressed: () {
                 setState(() {
                   widget.weeklyPlan = newWeeklyPlan;
@@ -200,8 +196,8 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
       child: Center(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
+            const Padding(
+              padding: EdgeInsets.all(10.0),
               child: Text('주간 계획', style: TextStyle(fontSize: 18.0),),
             ),
             CircularPercentIndicator(
@@ -212,9 +208,9 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
               progressColor: const Color(0xff69b0ee),
             ),
 
-            SizedBox(height: 10,width: 10,),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
+            const SizedBox(height: 10,width: 10,),
+            const Padding(
+              padding: EdgeInsets.all(10.0),
               child: Text('월간 계획', style: TextStyle(fontSize: 18.0),),
             ),
             CircularPercentIndicator(
@@ -226,7 +222,7 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
             ),
 
 
-            SizedBox(height: 10,width: 10,),
+            const SizedBox(height: 10,width: 10,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -234,7 +230,7 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
                   onPressed: showSetTargetDialog,
                   child: const Text('독서 목표'),
                 ),
-                SizedBox(width: 20.0,),
+                const SizedBox(width: 20.0,),
                 ElevatedButton(
                   onPressed: showReadPagesDialog,
                   child: const Text('오늘의 독서량'),

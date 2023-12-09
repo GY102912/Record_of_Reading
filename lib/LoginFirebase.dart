@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:moa_final_project/main.dart';
 
 
 class LoginPage extends StatelessWidget {
@@ -67,7 +68,7 @@ class _LoginFormState extends State<LoginForm> {
                     if (currentUser.user != null){
                       _formKey.currentState!.reset();
                       if (!mounted) return;
-                      //Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatPage()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const Week_MonthHome()));
                     }
                   } catch(e){
                     print(e);

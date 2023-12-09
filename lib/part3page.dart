@@ -17,7 +17,7 @@ class _part3pageState extends State<part3page> {
       child: Scaffold(
         appBar: PreferredSize(
           child: AppBar(),
-          preferredSize: Size.fromHeight(0),
+          preferredSize: const Size.fromHeight(0),
         ),
         /*
         appBar: AppBar(

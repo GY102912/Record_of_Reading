@@ -57,7 +57,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: ElevatedButton(
+            child: IconButton(
                 onPressed: (){
                   if (int.tryParse(_totalPageController.text) == null || (int.parse(_totalPageController.text) <0 )) {
                     setState(() {
@@ -89,17 +89,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     Navigator.pop(context);
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: Colors.indigo,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)
-                    )
-                ),
-                child: const Text(
-                  '추가',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
+                icon: const Icon(Icons.save_alt),
             ),
           )
         ],

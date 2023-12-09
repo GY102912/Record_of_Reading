@@ -39,16 +39,16 @@ class _ContentState extends State<ContentPage>{
         builder: (BuildContext context) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('수정'),
+              title: const Text('수정'),
               actions: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline),
                   onPressed: (){
                     Navigator.of(context).pop();
                   },
                 ),
                 IconButton(
-                  icon:Icon(Icons.save_alt),
+                  icon:const Icon(Icons.save_alt),
                   onPressed: () async {
                     String title = titleController.text;
                     String content = contentController.text;
@@ -84,14 +84,14 @@ class _ContentState extends State<ContentPage>{
                 children: <Widget>[
                   TextField(
                     controller: titleController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: '제목',
                     ),
                   ),
                   TextField(
                     controller: contentController,
                     maxLines: null, //다중 라인 허용
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: '내용',
                     ),
                   ),
@@ -109,17 +109,17 @@ class _ContentState extends State<ContentPage>{
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('삭제'),
-          content: Text('이 항목을 삭제하시겠습니까?'),
+          title: const Text('삭제'),
+          content: const Text('이 항목을 삭제하시겠습니까?'),
           actions: <Widget>[
             TextButton(
-              child: Text('취소'),
+              child: const Text('취소'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('삭제'),
+              child: const Text('삭제'),
               onPressed: () async {
                 // 사용자가 선택한 보고서를 삭제
                 await Provider.of<BookUpdator>(context, listen: false).deleteReportFromBook(
@@ -156,21 +156,21 @@ class _ContentState extends State<ContentPage>{
           appBar: AppBar(
             // 좌측 상단의 뒤로 가기 버튼
             leading: IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back),
               onPressed: () {
                 Navigator.pop(context, 1);
               },
             ),
-            title: Text('리포트 상세 보기'),
+            title: const Text('리포트 상세 보기'),
             actions: [
               IconButton(
                 onPressed: () => updateItemEvent(context),
-                icon: Icon(Icons.edit),
+                icon: const Icon(Icons.edit),
                 tooltip: "리포트 수정",
               ),
               IconButton(
                 onPressed: () => deleteItemEvent(context),
-                icon: Icon(CupertinoIcons.delete_solid),
+                icon: const Icon(CupertinoIcons.delete_solid),
                 tooltip: "리포트 삭제",
               ),
             ],
@@ -187,7 +187,7 @@ class _ContentState extends State<ContentPage>{
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(),
+                        const SizedBox(),
                         Text(ncontent!.reportTitle,
                           style:
                           TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
@@ -196,7 +196,7 @@ class _ContentState extends State<ContentPage>{
                     ),
                     Column(
                       children: [
-                        SizedBox(height: 35),
+                        const SizedBox(height: 35),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [Text('작성일 : ${ncontent!.createTime}')],
