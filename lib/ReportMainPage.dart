@@ -3,6 +3,7 @@ import 'ReportListProvider.dart';
 import 'package:provider/provider.dart';
 import 'reportDetailPage.dart';
 import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 
 //독서 진행률 보여주기 위함 ->  카드 누르면 책별 독후감 기록 보여주도록 고려
 class MyReadingPage extends StatefulWidget {
@@ -316,6 +317,9 @@ class _MyReportPageState extends State<MyReportPage>{
         Book? nBook = userProvider.findBook(book.bookId);
 
         return Scaffold(
+          appBar: AppBar(
+            //title: const Text('독서 기록'),
+          ),
           body: Column(
               children: <Widget>[
                 Padding(

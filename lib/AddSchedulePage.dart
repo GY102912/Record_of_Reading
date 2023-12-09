@@ -53,7 +53,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('독서 일정 추가'),
+        //title: const Text('독서 일정 추가'),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -135,7 +135,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('도서 제목'),
+                      const Text('책 제목'),
                       TextField(
                         controller: _bookTitleController,
                         //keyboardType: TextInputType.number,
@@ -152,7 +152,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                               controller: _totalPageController,
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
-                                  hintText: '총 페이지 (숫자)'
+                                  hintText: '총 페이지 수를 입력하세요'
                               ),
                             ),
                           ),

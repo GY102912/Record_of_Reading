@@ -282,6 +282,7 @@ class _Week_MonthHomeState extends State<Week_MonthHome> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Record of Reading'),
+          automaticallyImplyLeading: false,
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
@@ -309,7 +310,7 @@ class _Week_MonthHomeState extends State<Week_MonthHome> {
 }
 
 
-
+/*
 class Week_Month extends StatefulWidget {
 
   const Week_Month({Key? key}) : super(key: key);
@@ -367,4 +368,4 @@ class _Week_MonthState extends State<Week_Month> {
 
 }
 
-
+*/

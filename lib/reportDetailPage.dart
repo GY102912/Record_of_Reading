@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'ReportListProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -39,7 +40,7 @@ class _ContentState extends State<ContentPage>{
         builder: (BuildContext context) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('수정'),
+              //title: const Text('수정'),
               actions: <Widget>[
                 IconButton(
                   icon: const Icon(Icons.delete_outline),
@@ -161,7 +162,7 @@ class _ContentState extends State<ContentPage>{
                 Navigator.pop(context, 1);
               },
             ),
-            title: const Text('리포트 상세 보기'),
+            //title: const Text('리포트 상세 보기'),
             actions: [
               IconButton(
                 onPressed: () => updateItemEvent(context),
@@ -199,11 +200,11 @@ class _ContentState extends State<ContentPage>{
                         const SizedBox(height: 35),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
-                          children: [Text('작성일 : ${ncontent!.createTime}')],
+                          children: [Text('작성일 : ${DateFormat('yy/MM/dd').format(ncontent!.createTime)}')],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
-                          children: [Text('수정일 : ${ncontent!.updateDate}')],
+                          children: [Text('수정일 : ${DateFormat('yy/MM/dd').format(ncontent!.updateDate)}')],
                         ),
                         Expanded(
                           child: Padding(
