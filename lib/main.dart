@@ -282,7 +282,7 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
                         children: [
                           TextButton(
                             onPressed: (){showSetTargetDialog(true);},
-                            child: const Text('주간 계획', style: TextStyle(fontSize: 17.0),),
+                            child: const Text('주간 목표', style: TextStyle(fontSize: 17.0),),
                           ),
                           CircularPercentIndicator(
                             radius: 70.0,
@@ -297,7 +297,7 @@ class _ReadingPlanProgressState extends State<ReadingPlanProgress> {
                         children: [
                           TextButton(
                             onPressed: (){showSetTargetDialog(false);},
-                            child: const Text('월간 계획', style: TextStyle(fontSize: 17.0),),
+                            child: const Text('월간 목표', style: TextStyle(fontSize: 17.0),),
                           ),
                           CircularPercentIndicator(
                             radius: 70.0,
