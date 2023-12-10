@@ -376,7 +376,7 @@ class _MyReportPageState extends State<MyReportPage>{
           appBar: AppBar(
               actions: <Widget>[
                 IconButton(
-                    icon: Icon(Icons.refresh),
+                    icon: Icon(Icons.library_books),
                     onPressed: (){
                       updateCurrentPage(context);
                     }
