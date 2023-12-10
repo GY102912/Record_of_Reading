@@ -123,7 +123,9 @@ class _MyReadingPageState extends State<MyReadingPage> {
 
         return Scaffold(
           appBar: PreferredSize(
-            child: AppBar(),
+            child: AppBar(
+
+            ),
             preferredSize: const Size.fromHeight(0),
           ),
           body: ListView.builder(
@@ -309,6 +311,60 @@ class _MyReportPageState extends State<MyReportPage>{
     );
   }
 
+  void updateCurrentPage(BuildContext context){
+    int currentPage = book.currentPage;
+    //
+    UserProvider userProvider = Provider.of<UserProvider>(context, listen:false);
+    BookUpdator bookUpdator = Provider.of<BookUpdator>(context, listen: false);
+
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        int newPage = currentPage; // 새 페이지를 현재 페이지로 초기화
+        return AlertDialog(
+          title: Text('현재 읽고 있는 페이지는?'),
+          content: TextFormField(
+            decoration: InputDecoration(labelText: '새로 읽은 페이지 입력'),
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // 입력된 값을 정수로 변환하여 newPage에 저장
+              newPage = int.tryParse(value) ?? currentPage;
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+            TextButton(
+              child: Text('확인'),
+              onPressed: () async {
+                // 페이지 업데이트 로직
+                Book xBook = Book(bookId: book.bookId,
+                    bookTitle: book.bookTitle,
+                    authorName: book.authorName,
+                    totalPage: book.totalPage,
+                    reports: book.reports,
+                    currentPage: newPage
+                );
+                // Firestore 업데이트 로직 - 여기서는 생략
+                // UserProvider를 사용하여 Firestore에 업데이트하는 방법을 구현해야 합니다.
+                await bookUpdator.updateBookForUser(user.userId, book.bookId, xBook.toMap());
+                await Provider.of<UserProvider>(context, listen: false)
+                    .getUser(user.userId, user.userName);
+
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context){
     return Consumer<UserProvider>(
@@ -318,6 +374,14 @@ class _MyReportPageState extends State<MyReportPage>{
 
         return Scaffold(
           appBar: AppBar(
+              actions: <Widget>[
+                IconButton(
+                    icon: Icon(Icons.refresh),
+                    onPressed: (){
+                      updateCurrentPage(context);
+                    }
+                ),
+              ]
             //title: const Text('독서 기록'),
           ),
           body: Column(
