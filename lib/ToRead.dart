@@ -12,18 +12,19 @@ class SuspendedBookList extends StatelessWidget {
 }
 
 
-class ToRead {
-  String id; // 등록 시간
+class ToReadPerDay {
+  String id;
+  String date;
   String bookTitle;
   int startPage;
   int endPage;
 
-  ToRead(this.id,this.bookTitle, this.startPage, this.endPage);
+  ToReadPerDay(this.id, this.date, this.bookTitle, this.startPage, this.endPage);
 }
 
-class ToReadListPerDay {
-  DateTime date; // 언제읽을건지
-  List<ToRead> toReadList;
-
-  ToReadListPerDay(this.date, this.toReadList);
-}
+// class ToReadListPerDay {
+//   DateTime date; // 언제읽을건지
+//   List<ToRead> toReadList;
+//
+//   ToReadListPerDay(this.date, this.toReadList);
+// }

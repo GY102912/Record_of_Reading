@@ -1,21 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:moa_final_project/ReportListProvider.dart';
+import 'package:moa_final_project/ToRead.dart';
 import 'Scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'AddSchedulePage.dart';
 
-class SchedulePage extends StatelessWidget {
+class SchedulePage extends StatefulWidget {
   const SchedulePage({Key? key}) : super(key: key);
 
   @override
+  State<SchedulePage> createState() => _SchedulePageState();
+}
+
+class _SchedulePageState extends State<SchedulePage> {
+
+  String userId = '';
+
+  Future<void> setPage() async {
+    userId = context.read<UserProvider>().user.userName;
+    await context.read<Scheduler>().getScheduleList(userId);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setPage();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer<Scheduler>(
-      builder: (context, scheduler, _) {
-        return Stack(
+    List<ToReadPerDay> scheduleList = context.watch<Scheduler>().scheduleList;
+    return Scaffold(
+        body: Stack(
           alignment: Alignment.bottomRight,
           children: [
             Visibility(
-              visible: scheduler.scheduleList.isEmpty,
+              visible: scheduleList.isEmpty,
               child: const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -35,60 +56,75 @@ class SchedulePage extends StatelessWidget {
               ),
             ),
             Visibility(
-              visible: scheduler.scheduleList.isNotEmpty,
-              child: ListView.builder(
-                itemCount: scheduler.scheduleList.length,
-                itemBuilder: (context, dayIndex) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              visible: scheduleList.isNotEmpty,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Container(
-                        width: 70,
-                        padding: const EdgeInsets.symmetric(vertical: 28),
-                        child: Text(
-                          DateFormat('MM.dd').format(scheduler.scheduleList[dayIndex].date),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
                       Expanded(
-                        child: Column(
-                          children: List.generate(
-                            scheduler.scheduleList[dayIndex].toReadList.length,
-                                (i) => Dismissible(
-                              key: ValueKey(scheduler.scheduleList[dayIndex].toReadList[i].id),
-                              direction: DismissDirection.startToEnd,
-                              background: Container(
-                                padding: const EdgeInsets.all(16),
-                                alignment: Alignment.centerLeft,
-                                color: Colors.grey,
-                                child: const Text(
-                                  '삭제',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              onDismissed: (direction) {
-                                DateTime date = scheduler.scheduleList[dayIndex].date;
-                                String id = scheduler.scheduleList[dayIndex].toReadList[i].id;
-                                scheduler.deleteSchedule(date, id);
-                              },
-                              child: ListTile(
-                                title: Text(scheduler.scheduleList[dayIndex].toReadList[i].bookTitle),
-                                subtitle: Text(
-                                  '${scheduler.scheduleList[dayIndex].toReadList[i].startPage} ~ '
-                                      '${scheduler.scheduleList[dayIndex].toReadList[i].endPage}',
-                                ),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5)
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                              context.watch<Scheduler>().bookTitle,
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
                               ),
                             ),
                           ),
                         ),
                       ),
                     ],
-                  );
-                },
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: scheduleList.length,
+                      itemBuilder: (context, dayIndex) {
+                        return Dismissible(
+                          key: ValueKey(scheduleList[dayIndex].id),
+                          direction: DismissDirection.startToEnd,
+                          background: Container(
+                            padding: const EdgeInsets.all(16),
+                            alignment: Alignment.centerLeft,
+                            color: Colors.grey,
+                            child: const Text(
+                              '삭제',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          onDismissed: (direction) async {
+                            String id = scheduleList[dayIndex].id;
+                            await context.read<Scheduler>().deleteSchedule(userId, id);
+                          },
+                          child: ListTile(
+                            leading: SizedBox(
+                              width: 80,
+                              child: Text(
+                                scheduleList[dayIndex].date.substring(5, 10),
+                                style: const TextStyle(
+                                    color: Colors.indigo,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                                'p. ${scheduleList[dayIndex].startPage} ~ ${scheduleList[dayIndex].endPage}'
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
             Padding(
@@ -98,15 +134,14 @@ class SchedulePage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AddSchedulePage()),
+                    MaterialPageRoute(builder: (context) => AddSchedulePage(userId: userId)),
                   );
                 },
-                child: const Icon(Icons.add),
+                child: const Icon(Icons.edit),
               ),
             ),
           ],
-        );
-      },
+        )
     );
   }
 }

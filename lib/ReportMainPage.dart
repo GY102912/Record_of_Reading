@@ -368,99 +368,99 @@ class _MyReportPageState extends State<MyReportPage>{
   @override
   Widget build(BuildContext context){
     return Consumer<UserProvider>(
-      builder: (context, userProvider, child){
+        builder: (context, userProvider, child){
 
-        Book? nBook = userProvider.findBook(book.bookId);
+          Book? nBook = userProvider.findBook(book.bookId);
 
-        return Scaffold(
-          appBar: AppBar(
-              actions: <Widget>[
-                IconButton(
-                    icon: Icon(Icons.library_books),
-                    onPressed: (){
-                      updateCurrentPage(context);
-                    }
-                ),
-              ]
-            //title: const Text('독서 기록'),
-          ),
-          body: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: '검색어를 입력하세요',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (value){
-                      setState((){
-                        searchText = value;
-                      });
-                    },
+          return Scaffold(
+            appBar: AppBar(
+                actions: <Widget>[
+                  IconButton(
+                      icon: Icon(Icons.library_books),
+                      onPressed: (){
+                        updateCurrentPage(context);
+                      }
                   ),
-                ),
-                Expanded(
-                    child: Builder(
-                        builder: (context){
-                          //수정이 일어나면 리스트 새로고침
-                          List<Report> reports = nBook!.reports;
-                          //리포트가 없을 경우
-                          if(reports.isEmpty){
-                            return const Center(
-                                child: Text(
-                                  '아직 독후감이 없습니다',
-                                  style: TextStyle(fontSize: 20),
-                                )
-                            );
-                          }
-                          else{
-                            return ListView.builder(
-                                itemCount: reports.length,
-                                itemBuilder: (BuildContext context, int index){
-                                  // 독후감 정보 저장
-                                  Report reportInfo = reports[index];
-                                  String reportTitle = reportInfo.reportTitle;
-                                  String reportContent = reportInfo.reportContent;
-                                  // String createDate = reportInfo['createDate'];
-                                  // String updateDate = reportInfo['updateDate'];
+                ]
+              //title: const Text('독서 기록'),
+            ),
+            body: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: '검색어를 입력하세요',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value){
+                        setState((){
+                          searchText = value;
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                      child: Builder(
+                          builder: (context){
+                            //수정이 일어나면 리스트 새로고침
+                            List<Report> reports = nBook!.reports;
+                            //리포트가 없을 경우
+                            if(reports.isEmpty){
+                              return const Center(
+                                  child: Text(
+                                    '아직 독후감이 없습니다',
+                                    style: TextStyle(fontSize: 20),
+                                  )
+                              );
+                            }
+                            else{
+                              return ListView.builder(
+                                  itemCount: reports.length,
+                                  itemBuilder: (BuildContext context, int index){
+                                    // 독후감 정보 저장
+                                    Report reportInfo = reports[index];
+                                    String reportTitle = reportInfo.reportTitle;
+                                    String reportContent = reportInfo.reportContent;
+                                    // String createDate = reportInfo['createDate'];
+                                    // String updateDate = reportInfo['updateDate'];
 
-                                  //검색 기능, 검색어가 있을 경우, 제목으로만 검색
-                                  if (searchText.isNotEmpty && !reports[index].reportTitle.toLowerCase().contains(searchText.toLowerCase())){
-                                    return const SizedBox.shrink();
+                                    //검색 기능, 검색어가 있을 경우, 제목으로만 검색
+                                    if (searchText.isNotEmpty && !reports[index].reportTitle.toLowerCase().contains(searchText.toLowerCase())){
+                                      return const SizedBox.shrink();
+                                    }
+                                    //검색어 없거나 모든 항목 표시
+                                    else{
+                                      return Card(
+                                          elevation: 3,
+                                          shape: const RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.all(Radius.elliptical(20,20,))),
+                                          child: ListTile(
+                                            leading: const Icon(Icons.description_outlined),
+                                            title: Text(reportTitle),
+                                            subtitle: Text(reportContent),
+                                            // trailing: Text(b.),
+                                            onTap: () => cardClickEvent(context, index),
+                                          )
+                                      );
+                                    }
                                   }
-                                  //검색어 없거나 모든 항목 표시
-                                  else{
-                                    return Card(
-                                        elevation: 3,
-                                        shape: const RoundedRectangleBorder(
-                                            borderRadius:
-                                            BorderRadius.all(Radius.elliptical(20,20,))),
-                                        child: ListTile(
-                                          leading: const Icon(Icons.description_outlined),
-                                          title: Text(reportTitle),
-                                          subtitle: Text(reportContent),
-                                          // trailing: Text(b.),
-                                          onTap: () => cardClickEvent(context, index),
-                                        )
-                                    );
-                                  }
-                                }
-                            );
+                              );
+                            }
                           }
-                        }
-                    )
-                )
-              ]
-          ),
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: const Color(0xff69b0ee),
-            onPressed: () => addReportEvent(context),
-            tooltip: '독후감 쓰기',
-            child: const Icon(Icons.edit),
-          ),
-        );
-      }
+                      )
+                  )
+                ]
+            ),
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: const Color(0xff69b0ee),
+              onPressed: () => addReportEvent(context),
+              tooltip: '독후감 쓰기',
+              child: const Icon(Icons.edit),
+            ),
+          );
+        }
     );
   }
 }

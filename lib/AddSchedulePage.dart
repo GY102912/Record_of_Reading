@@ -7,7 +7,8 @@ import 'Scheduler.dart';
 
 
 class AddSchedulePage extends StatefulWidget {
-  const AddSchedulePage({super.key});
+  final String userId;
+  const AddSchedulePage({super.key, required this.userId});
 
   @override
   State<AddSchedulePage> createState() => _AddSchedulePageState();
@@ -53,12 +54,12 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        //title: const Text('독서 일정 추가'),
+        title: const Text('새 독서 일정'),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: IconButton(
-                onPressed: (){
+            child: ElevatedButton(
+                onPressed: () async {
                   if (int.tryParse(_totalPageController.text) == null || (int.parse(_totalPageController.text) <0 )) {
                     setState(() {
                       _invalid = true;
@@ -67,29 +68,44 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     setState(() {
                       _invalid = false;
                     });
-                    DateTime date = _selectedDay;
                     String id = '';
+                    String date = '';
                     String bookTitle = _bookTitleController.text;
                     int totalPage = int.parse(_totalPageController.text);
                     int startPage = 0;
                     int deltaPage = totalPage~/28;
                     int remPage = totalPage%28;
+                    await context.read<Scheduler>().refreshScheduleList(widget.userId);
+                    if (!mounted) return;
                     for(int i=0; i<28; ++i) {
                       if(i==27) {
-                        id = DateFormat('yyyy.MM.dd_hh:mm:ss').format(DateTime(date.year,date.month,date.day+i));
-                        ToRead toRead = ToRead(id, bookTitle, startPage,startPage+deltaPage+remPage);
-                        context.read<Scheduler>().addSchedule(DateTime(date.year,date.month,date.day+i), toRead);
+                        id = i.toString();
+                        date = DateFormat('yyyy.MM.dd').format(DateTime(_selectedDay.year,_selectedDay.month,_selectedDay.day+i));
+                        ToReadPerDay toReadPerDay = ToReadPerDay(id, date, bookTitle, startPage, startPage+deltaPage+remPage);
+                        await context.read<Scheduler>().addSchedule(widget.userId, id, toReadPerDay);
                         continue;
                       }
-                      id = DateFormat('yyyy.MM.dd_hh:mm:ss').format(DateTime(date.year,date.month,date.day+i));
-                      ToRead toRead = ToRead(id, bookTitle, startPage,startPage+deltaPage);
-                      context.read<Scheduler>().addSchedule(DateTime(date.year,date.month,date.day+i), toRead);
+                      id = i.toString();
+                      date = DateFormat('yyyy.MM.dd').format(DateTime(_selectedDay.year,_selectedDay.month,_selectedDay.day+i));
+                      ToReadPerDay toReadPerDay = ToReadPerDay(id, date, bookTitle, startPage,startPage+deltaPage);
+                      await context.read<Scheduler>().addSchedule(widget.userId, id, toReadPerDay);
                       startPage=startPage+deltaPage;
                     }
+                    if (!mounted) return;
                     Navigator.pop(context);
                   }
                 },
-                icon: const Icon(Icons.save_alt),
+                style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: Colors.indigo,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)
+                    )
+                ),
+                child: const Text(
+                  '추가',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                )
             ),
           )
         ],
@@ -124,6 +140,8 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                   selectedDayPredicate: (day) {
                     return isSameDay(_selectedDay, day);
                   },
+                  rangeStartDay: _selectedDay,
+                  rangeEndDay: _selectedDay.add(const Duration(days: 27)),
                   headerStyle: const HeaderStyle(
                       titleCentered: true,
                       formatButtonVisible: false
@@ -135,7 +153,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('책 제목'),
+                      const Text('도서 제목'),
                       TextField(
                         controller: _bookTitleController,
                         //keyboardType: TextInputType.number,
@@ -152,7 +170,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                               controller: _totalPageController,
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
-                                  hintText: '총 페이지 수를 입력하세요'
+                                  hintText: '총 페이지 (숫자)'
                               ),
                             ),
                           ),
